@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+    <title>{title}</title>
+</head>
+<body>
+{svg}
+&nbsp;
+&nbsp;
+&nbsp;
+{title}
+
+
+<h2>Input and run configurations</h2>
+<h4>Main input</h4>
+<table>
+    <tr>
+        <td>Parental library file:</td>
+        <td>{fa}</td>
+        <td>{fa_size}</td>
+    </tr>
+    <tr>
+        <td>Chimeric library file:</td>
+        <td>{csv_fq}</td>
+        <td>{csv_fq_size}</td>
+    </tr>
+    <tr>
+        <td>Enriched library file:</td>
+        <td>{fq}</td>
+        <td>{fq_size}</td>
+    </tr>
+    <tr>
+        <td>Explore output directory:</td>
+        <td>{explore_out}</td>
+        <td>{explore_out_size}</td>
+    </tr>
+</table>
+
+<h4>Other options</h4>
+<table>
+    <tr>
+        <td>Output directory:</td>
+        <td>{out_dir}</td>
+    </tr>
+    <tr>
+        <td>Explore:</td>
+        <td>{explore}</td>
+    </tr>
+    <tr>
+        <td>Identify:</td>
+        <td>{identify}</td>
+    </tr>
+    <tr>
+        <td>Read length:</td>
+        <td>{read_length}</td>
+    </tr>
+    <tr>
+        <td>Step size:</td>
+        <td>{step_size}</td>
+    </tr>
+    <tr>
+        <td>Overlap:</td>
+        <td>{overlap}</td>
+    </tr>
+    <tr>
+        <td>Variant description criterion [-vd_criterion]:</td>
+        <td>{vd_criterion}</td>
+    </tr>
+</table>
+&nbsp;
+&nbsp;
+
+<h2>Summary statistics</h2>
+<h3>ORF filtering results</h3>
+<h4>Chimeric library</h4>
+{chimeric_orf_summary}
+<h4>Enriched library</h4>
+{enriched_orf_summary}
+&nbsp;
+&nbsp;
+
+<h2>Report files</h2>
+<table>
+    <tr>
+        <td>Main report:</td>
+        <td><a href={main_report}>{main_report}</a></td>
+    </tr>
+</table>
+
+&nbsp;
+
+<footer>
+    {footer}
+</footer>
+
+</body>
+</html>
