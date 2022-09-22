@@ -1,0 +1,4 @@
+final_chimeric_orf_fasta hafoe_out_test/files/Chimeric_ORF.fasta
+chimeric_orf_summary hafoe_out_test/files/Chimeric_orf_summary.csv
+final_enriched_orf_fasta hafoe_out_test/files/Enriched1_ORF.fasta
+enriched1_orf_summary hafoe_out_test/files/Enriched1_orf_summary.csv
