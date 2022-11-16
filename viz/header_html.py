@@ -27,11 +27,11 @@ def get_version():
 
     return version
 
-def write_header(config_df, chimeric_orf_summary_df, enriched1_orf_summary_df):
+def write_header(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary_path_paths):
     html_file_path = os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", config_df.loc[config_df[0] == "title_of_the_run"].iloc[0,1] + ".html")
     html_file = open(html_file_path, "w")
 
-    html_file.write(get_html_body(config_df, chimeric_orf_summary_df, enriched1_orf_summary_df))
+    html_file.write(get_html_body(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary_path_paths))
 
     html_file.close()
 
@@ -175,7 +175,9 @@ def get_div_footer():
     return div
 
 
-def get_libsize_table(orf_summary_df):
+def get_chimeric_summary_table(orf_summary_df_path):
+    orf_summary_df = pd.read_csv(orf_summary_df_path)
+
     table = "<table>" # \
             # "<tr>" \
             # "<th> </th>" \
@@ -190,7 +192,32 @@ def get_libsize_table(orf_summary_df):
     return table
 
 
-def get_html_body(config_df, chimeric_orf_summary_df, enriched1_orf_summary_df):
+def get_enriched_summary_table(enriched1_orf_summary_path_paths):
+
+    tables = ""
+    for f in enriched1_orf_summary_path_paths:
+        enriched1_name = os.path.abspath(f)
+        enriched1_name = os.path.basename(enriched1_name) 
+        enriched1_name = enriched1_name.split(".", 1)[0] 
+        
+        orf_summary_df = pd.read_csv(f)
+
+        table = "<h5>%s</h5> \
+                <table>" % (enriched1_name) # \
+                # "<tr>" \
+                # "<th> </th>" \
+                # "<th> </th>" \
+                # "</tr>"
+
+        for i in range(len(orf_summary_df)):
+            table += "<tr><td>%s:</td><td>%d</td></tr>" \
+                        % (orf_summary_df.iloc[i,0], pd.to_numeric(orf_summary_df.iloc[i,1]))
+        table += "</table>"
+        table += "&nbsp;"
+        tables += table
+    return tables
+
+def get_html_body(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary_path_paths):
 
     curr_dir = os.getcwd()
     with open(os.path.join(curr_dir, "viz", "template.html"), "r") as f:
@@ -216,11 +243,21 @@ def get_html_body(config_df, chimeric_orf_summary_df, enriched1_orf_summary_df):
             chimera_size = "None"
 
         if ('enriched' in config_df[0].values) and config_df.loc[config_df[0] == "enriched"].iloc[0, 1]  is not None and config_df.loc[config_df[0] == "enriched"].iloc[0, 1] != 'none':
-            enriched = os.path.abspath(config_df.loc[config_df[0] == "enriched"].iloc[0, 1])
-            enriched_size = human_readable_size(os.path.getsize(enriched))
+            enriched1 = os.path.abspath(config_df.loc[config_df[0] == "enriched"].iloc[0, 1])
+            def list_full_paths(directory):
+                return [os.path.join(directory, file) for file in os.listdir(directory)]
+            
+            enriched1_files = list_full_paths(enriched1)
+
+            enriched1_files = [os.path.abspath(s) for s in enriched1_files]
+            # enriched_names = [s.split(".", 1)[0] for s in enriched_files]
+            enriched1_sizes = [os.path.getsize(s) for s in enriched1_files]
+            enriched1_sizes = [human_readable_size(s) for s in enriched1_sizes]
+            enriched1_sizes_str = ', '.join([str(elem) for elem in enriched1_sizes])
+            # enriched_size = human_readable_size(os.path.getsize(enriched))
         else:
-            enriched = "None"
-            enriched_size = "None"
+            enriched1 = "None"
+            enriched1_sizes = "None"
 
         if ('explore.out' in config_df[0].values) and config_df.loc[config_df[0] == "explore.out"].iloc[0, 1]  is not None and config_df.loc[config_df[0] == "explore.out"].iloc[0, 1] != 'none':
             explore_out = os.path.abspath(config_df.loc[config_df[0] == "explore.out"].iloc[0, 1])
@@ -273,8 +310,8 @@ def get_html_body(config_df, chimeric_orf_summary_df, enriched1_orf_summary_df):
                                  fa_size=parent_size,
                                  csv_fq=chimera,
                                  csv_fq_size=chimera_size,
-                                 fq=enriched,
-                                 fq_size=enriched_size,
+                                 fq=enriched1,
+                                 fq_size=enriched1_sizes_str,
                                  explore_out=explore_out,
                                  explore_out_size=explore_out_size,
                                  out_dir=out_dir,
@@ -284,8 +321,8 @@ def get_html_body(config_df, chimeric_orf_summary_df, enriched1_orf_summary_df):
                                  step_size=step_size,
                                  overlap=overlap,
                                  vd_criterion=vd_criterion,
-                                 chimeric_orf_summary=get_libsize_table(chimeric_orf_summary_df),
-                                 enriched_orf_summary=get_libsize_table(enriched1_orf_summary_df),
+                                 chimeric_orf_summary=get_chimeric_summary_table(chimeric_orf_summary_df_path),
+                                 enriched_orf_summary=get_enriched_summary_table(enriched1_orf_summary_path_paths), 
                                  main_report=os.path.join(title + "_main.html"))
         return (result)
 
