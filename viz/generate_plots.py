@@ -19,6 +19,8 @@ def generate_header(config_df, output_paths_df, enriched1_names):
     enriched1_orf_summary_path_keys = ["Enriched1_"+ n + "_orf_summary" for n in enriched1_names]    
     enriched1_orf_summary_path_paths = output_paths_df.loc[output_paths_df[0].isin(enriched1_orf_summary_path_keys)].iloc[:,1]
 
+    os.makedirs(os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "main"), exist_ok=True)
+
     write_header(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary_path_paths)
 
 def get_df_from_fasta(path):
@@ -132,6 +134,8 @@ def get_positional_serotype_abundance_matrix(csv_path):
     return positional_serotype_abundance_del
 
 def generate_main_report(config_df):
+    os.makedirs(os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "supplement"), exist_ok=True)
+
     chimeric_orf_df = get_df_from_fasta(output_paths_df.loc[output_paths_df[0] == "final_chimeric_orf_fasta"].iloc[0,1]) 
     chimeric_lib_vd_dictionary = get_vd_dictionary(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description"].iloc[0,1])
     chimeric_lib_top20_vd_dictionary = get_vd_dictionary(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description_top20"].iloc[0,1])
@@ -151,7 +155,7 @@ def generate_main_report(config_df):
     figure_layout = []
     figure_layout += [[view_cluster_size_distribution(chimeric_lib_clustering_info, lower_cut_size_ = 100, lower_cut_abundance_ = 100)]]
     figure_layout += [[view_composition("Compositions of the 20 most abundant representatives in chimeric library (with multiple sequence alignment)", chimeric_lib_top20_vd_dictionary, serotype_colors, serotype_names)]]
-    figure_layout += [[view_composition("Compositions of chimeric library representatives", chimeric_lib_vd_dictionary, serotype_colors, serotype_names)]]
+    #figure_layout += [[view_composition("Compositions of chimeric library representatives", chimeric_lib_vd_dictionary, serotype_colors, serotype_names)]]
     figure_layout += [[bk.layouts.row(view_serotype_abundance("Serotype abundance in chimeric library",
                                             data=serotype_dist_data_frame_del, 
                                             serotype_names=serotype_names_del, 
@@ -160,12 +164,21 @@ def generate_main_report(config_df):
                                                                     positional_serotype_abundance_del, 
                                                                     serotype_names_del, 
                                                                     serotype_colors_del), width = 1500)]]
-    figure_layout += [[[bokeh_histogram("Chimeric library ORF length distribution", chimeric_orf_df, 20, plot_width=600)]] + enriched1_hist_list]
+    #figure_layout += [[[bokeh_histogram("Chimeric library ORF length distribution", chimeric_orf_df, 20, plot_width=600)]] + enriched1_hist_list]
 
     title = config_df.loc[config_df[0] == "title_of_the_run"].iloc[0, 1]
     bokeh_composite(title + "_main",  
                     figure_layout = figure_layout, 
-                    filename = os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", title + "_main.html"))
+                    filename = os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "main", title + "_main.html"))
+
+    #supplement
+    bokeh_composite(title + "_chimeric_library_composition",  
+                    figure_layout = [view_composition("Compositions of chimeric library representatives", chimeric_lib_vd_dictionary, serotype_colors, serotype_names)], 
+                    filename = os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "supplement", title + "_chimeric_library_composition.html"))
+
+    bokeh_composite(title + "_orf_quality_control",  
+                    figure_layout = [[[bokeh_histogram("Chimeric library ORF length distribution", chimeric_orf_df, 20, plot_width=600)]] + enriched1_hist_list], 
+                    filename = os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "supplement", title + "_orf_quality_control.html"))
 
 if __name__ == '__main__':
     #os.chdir("c:/Users/Tatevik/Desktop/ABI/hafoe")

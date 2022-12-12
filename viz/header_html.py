@@ -28,7 +28,7 @@ def get_version():
     return version
 
 def write_header(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary_path_paths):
-    html_file_path = os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", config_df.loc[config_df[0] == "title_of_the_run"].iloc[0,1] + ".html")
+    html_file_path = os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "main", config_df.loc[config_df[0] == "title_of_the_run"].iloc[0,1] + ".html")
     html_file = open(html_file_path, "w")
 
     html_file.write(get_html_body(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary_path_paths))

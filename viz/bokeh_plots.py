@@ -209,20 +209,20 @@ def view_serotype_abundance(title, data, serotype_names, serotype_colors):
     return p
 
 def view_positional_serotype_abundance(title, positional_serotype_abundance, serotype_names, serotype_colors):
-    def update_data(attrname, old, new):
+    # def update_data(attrname, old, new):
 
-        ### Get the current slider value
-        smoothing_window_size = smoothing_slider.value
+    #     ### Get the current slider value
+    #     smoothing_window_size = smoothing_slider.value
             
-        smoothed_serotype_abundance = np.copy(positional_serotype_abundance)
-        for serotype_indx in np.arange(0, len(serotype_names), 1):
-            abundance_tmp = smoothed_serotype_abundance[serotype_indx]
-            smoothed_serotype_abundance[serotype_indx] = np.convolve(abundance_tmp, 
-                                                                    np.ones(smoothing_window_size), 
-                                                                    'same')/smoothing_window_size
+    #     smoothed_serotype_abundance = np.copy(positional_serotype_abundance)
+    #     for serotype_indx in np.arange(0, len(serotype_names), 1):
+    #         abundance_tmp = smoothed_serotype_abundance[serotype_indx]
+    #         smoothed_serotype_abundance[serotype_indx] = np.convolve(abundance_tmp, 
+    #                                                                 np.ones(smoothing_window_size), 
+    #                                                                 'same')/smoothing_window_size
             
-        ### update the data container
-        source.data["abundance"] = list(smoothed_serotype_abundance)
+    #     ### update the data container
+    #     source.data["abundance"] = list(smoothed_serotype_abundance)
 
     ### The smoothing slider
     smoothing_slider = bk.models.Slider(start = 1, end = 500, value = 100, step = 1, title = "Smoothing length")
@@ -260,41 +260,86 @@ def view_positional_serotype_abundance(title, positional_serotype_abundance, ser
     p.add_tools(bk.models.HoverTool(tooltips = tooltips))
 
 
-    smoothing_slider.on_change('value', update_data)
+    update_data = bk.models.CustomJS(args = dict(source=source, external_data = data_dict), code="""
+        var data = source.data;
+        var smoothing_window_size = cb_obj.value;
+        
+        const x_external = external_data["positions"];
+        const y_external = external_data["abundance"];
+        
+        var chunk; var chunk_start; var chunk_end;
+        
+        data["positions"] = x_external;
+        
+        console.log("entering loops")
+        
+        for (var i = 0; i < x_external.length; i++) {
+
+            for (var j = 0; j <= y_external[i].length - Math.floor(smoothing_window_size/2); j++){
+            
+                if (j - Math.floor(smoothing_window_size/2) < 0)
+                    {chunk_start = 0;}
+                else
+                    {chunk_start = j - Math.floor(smoothing_window_size/2);}
+                if (j + Math.floor(smoothing_window_size/2) > y_external[i].length)
+                    {chunk_end = y_external[i].length;}
+                else
+                    {chunk_end = j + Math.floor(smoothing_window_size/2);}
+                    
+                chunk = y_external[i].slice(chunk_start, chunk_end + 1);
+                console.log(chunk)
+                data["abundance"][i][j] = chunk.reduce((total, current) => total + current)/chunk.length;
+                
+            }
+        }
+        
+        
+        
+        source.change.emit();
+        
+    """)
+
+
+    #smoothing_slider.on_change('value', update_data)
+    smoothing_slider.js_on_change('value', update_data)
+
 
     # show the results
     layout = bk.layouts.column(smoothing_slider, p, width = 750)
 
     return layout
 
-def view_cluster_size_distribution(clustering_data, lower_cut_size_ = 100, lower_cut_abundance_ = 100):
+def view_cluster_size_distribution(clustering_data, topn = 20, lower_cut_size_ = 100, lower_cut_abundance_ = 100):
     ### Lower and upper cluster sizes to be included in the bar plot
-    lower_cut_size = lower_cut_size_
-    upper_cut_size = max(clustering_data["member_count"])+10
-    lower_cut_abundance = lower_cut_abundance_
-    upper_cut_abundance = max(clustering_data["Chimeric.Count"])+10
-    ### Filter the data
-    cut_tmp = clustering_data[(clustering_data["member_count"] > lower_cut_size) & 
-                              (clustering_data["member_count"] < upper_cut_size) &
-                              (clustering_data["Chimeric.Count"] > lower_cut_abundance) &
-                              (clustering_data["Chimeric.Count"] < upper_cut_abundance)
-                             ]
+    # lower_cut_size = lower_cut_size_
+    # upper_cut_size = max(clustering_data["member_count"])+10
+    # lower_cut_abundance = lower_cut_abundance_
+    # upper_cut_abundance = max(clustering_data["Chimeric.Count"])+10
+    # ### Filter the data
+    # cut_tmp = clustering_data[(clustering_data["member_count"] > lower_cut_size) & 
+    #                           (clustering_data["member_count"] < upper_cut_size) &
+    #                           (clustering_data["Chimeric.Count"] > lower_cut_abundance) &
+    #                           (clustering_data["Chimeric.Count"] < upper_cut_abundance)
+    #                          ]
 
+    # take top 20 by cluster size
+    clustering_data = clustering_data.sort_values(by=['member_count'], ascending=False)
+    cut_tmp = clustering_data.head(topn)
     ### Prepare the ColumnDataSource
     ### reps is the representative names, sizes is the size of the corresponding cluster
     source = bk.models.ColumnDataSource(data = dict(reps = cut_tmp.Representative, sizes = cut_tmp["member_count"], abundances = cut_tmp["Chimeric.Count"]))
 
     ### Make a range slider for changing the lower and upper cuts
-    range_slider_size = bk.models.RangeSlider(start = 1, 
-                                         end = upper_cut_size, 
-                                         value = (lower_cut_size, upper_cut_size), 
-                                         step=1, 
-                                         title="Range of the cluster sizes")
-    range_slider_abundance = bk.models.RangeSlider(start = 1, 
-                                         end = upper_cut_abundance, 
-                                         value = (lower_cut_abundance, upper_cut_abundance), 
-                                         step=1, 
-                                         title="Range of the cluster abundances")
+    # range_slider_size = bk.models.RangeSlider(start = 1, 
+    #                                      end = upper_cut_size, 
+    #                                      value = (lower_cut_size, upper_cut_size), 
+    #                                      step=1, 
+    #                                      title="Range of the cluster sizes")
+    # range_slider_abundance = bk.models.RangeSlider(start = 1, 
+    #                                      end = upper_cut_abundance, 
+    #                                      value = (lower_cut_abundance, upper_cut_abundance), 
+    #                                      step=1, 
+    #                                      title="Range of the cluster abundances")
 
 
     ### Make the log and linear bar plots
@@ -304,7 +349,7 @@ def view_cluster_size_distribution(clustering_data, lower_cut_size_ = 100, lower
     p_linear_size = bk.plotting.figure(height=500, width=1100,
                                   y_range = [1e-2, 7e3], 
                                   x_range = source.data["reps"].values, 
-                                  title="Chimeric library cluster size", 
+                                  title="Chimeric library cluster size for top "+str(topn)+" clusters", 
                                   sizing_mode="scale_both", 
                                   y_axis_type="linear")
 
@@ -320,7 +365,7 @@ def view_cluster_size_distribution(clustering_data, lower_cut_size_ = 100, lower
     p_log_size = bk.plotting.figure(height=500, width=1100,
                                   y_range = [1e-2, 5e3], 
                                   x_range = source.data["reps"].values, 
-                                  title="Chimeric library cluster size", 
+                                  title="Chimeric library cluster size for top "+str(topn)+" clusters", 
                                   sizing_mode="scale_both", 
                                   y_axis_type="log")
 
@@ -341,7 +386,7 @@ def view_cluster_size_distribution(clustering_data, lower_cut_size_ = 100, lower
     p_linear_abundance = bk.plotting.figure(height=500, width=1100,
                                           y_range = [1e-2, 7e3], 
                                           x_range = source.data["reps"].values, 
-                                          title="Chimeric library cluster abundance", 
+                                          title="Chimeric library cluster abundance for top "+str(topn)+" clusters", 
                                           sizing_mode="scale_both", 
                                           y_axis_type="linear")
 
@@ -357,7 +402,7 @@ def view_cluster_size_distribution(clustering_data, lower_cut_size_ = 100, lower
     p_log_abundance = bk.plotting.figure(height=500, width=1100,
                                   y_range = [1e-2, 5e3], 
                                   x_range = source.data["reps"].values, 
-                                  title="Chimeric library cluster abundance", 
+                                  title="Chimeric library cluster abundance for top "+str(topn)+" clusters", 
                                   sizing_mode="scale_both", 
                                   y_axis_type="log")
 
@@ -393,45 +438,46 @@ def view_cluster_size_distribution(clustering_data, lower_cut_size_ = 100, lower
     representative_table = bk.models.DataTable(source=source, columns=columns, fit_columns=True, height=500, width=400)
 
 
-    def update_data(attrname, old, new):
+    # def update_data(attrname, old, new):
 
-        ### Get the current slider values
-        lower_cut_size = range_slider_size.value[0]
-        upper_cut_size = range_slider_size.value[1]
-        lower_cut_abundance = range_slider_abundance.value[0]
-        upper_cut_abundance = range_slider_abundance.value[1]
+    #     ### Get the current slider values
+    #     lower_cut_size = range_slider_size.value[0]
+    #     upper_cut_size = range_slider_size.value[1]
+    #     lower_cut_abundance = range_slider_abundance.value[0]
+    #     upper_cut_abundance = range_slider_abundance.value[1]
 
 
-        ### And introduce the cut to the data
-        cut_tmp = clustering_data[(clustering_data["member_count"]>=lower_cut_size) & 
-                                  (clustering_data["member_count"]<=upper_cut_size) &
-                                  (clustering_data["Chimeric.Count"]>=lower_cut_abundance) & 
-                                  (clustering_data["Chimeric.Count"]<=upper_cut_abundance)]
+    #     ### And introduce the cut to the data
+    #     cut_tmp = clustering_data[(clustering_data["member_count"]>=lower_cut_size) & 
+    #                               (clustering_data["member_count"]<=upper_cut_size) &
+    #                               (clustering_data["Chimeric.Count"]>=lower_cut_abundance) & 
+    #                               (clustering_data["Chimeric.Count"]<=upper_cut_abundance)]
 
-        ### There is a bug when the filtered data is empty
-        ### Should figure out how to correct this efficiently
-        #if not len(cut_tmp):
-        #    lower_cut = 100
-        #    upper_cut = 1000
+    #     ### There is a bug when the filtered data is empty
+    #     ### Should figure out how to correct this efficiently
+    #     #if not len(cut_tmp):
+    #     #    lower_cut = 100
+    #     #    upper_cut = 1000
 
-        #    range_slider.value[0] = lower_cut
-        #    range_slider.value[1] = upper_cut
+    #     #    range_slider.value[0] = lower_cut
+    #     #    range_slider.value[1] = upper_cut
 
-        #    cut_tmp = clustering_data[(clustering_data.member_count>lower_cut) & 
-        #                         (clustering_data.member_count<upper_cut)]
+    #     #    cut_tmp = clustering_data[(clustering_data.member_count>lower_cut) & 
+    #     #                         (clustering_data.member_count<upper_cut)]
 
-        source.data = dict(reps=cut_tmp.Representative, sizes=cut_tmp["member_count"], abundances=cut_tmp["Chimeric.Count"])
+    #     source.data = dict(reps=cut_tmp.Representative, sizes=cut_tmp["member_count"], abundances=cut_tmp["Chimeric.Count"])
 
-        ### Prepare new list, and update the figure
-        new_list = list(source.data["reps"].values)
-        p_log_size.x_range.factors = new_list
-        p_linear_size.x_range.factors = new_list
-        p_log_abundance.x_range.factors = new_list
-        p_linear_abundance.x_range.factors = new_list
+    #     ### Prepare new list, and update the figure
+    #     new_list = list(source.data["reps"].values)
+    #     p_log_size.x_range.factors = new_list
+    #     p_linear_size.x_range.factors = new_list
+    #     p_log_abundance.x_range.factors = new_list
+    #     p_linear_abundance.x_range.factors = new_list
 
-    range_slider_size.on_change('value', update_data)
-    range_slider_abundance.on_change('value', update_data)
+    # range_slider_size.on_change('value', update_data)
+    # range_slider_abundance.on_change('value', update_data)
 
-    # layout = bk.layouts.row(bk.layouts.column(range_slider_size, tabs, height=600, width=700), bk.layouts.column(range_slider_abundance, representative_table, height=600, width=300))
-    layout = bk.layouts.column(bk.layouts.column(range_slider_size, range_slider_abundance, width=1500), bk.layouts.row(tabs, representative_table, width=1500, height=550))
+    # layout = bk.layouts.column(bk.layouts.column(range_slider_size, range_slider_abundance, width=1500), bk.layouts.row(tabs, representative_table, width=1500, height=550))
+    layout = bk.layouts.row(tabs, representative_table, width=1500, height=550)
+
     return layout
