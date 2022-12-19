@@ -237,6 +237,15 @@ def view_positional_serotype_abundance(title, positional_serotype_abundance, ser
     data_dict["color"] = serotype_colors
     data_dict["serotypes"] = serotype_names
     source = bk.plotting.ColumnDataSource(data = data_dict)
+    
+    # smooth the initially displayed data with default value
+    smoothed_serotype_abundance = np.copy(positional_serotype_abundance)
+    for serotype_indx in np.arange(0, len(serotype_names), 1):
+        abundance_tmp = smoothed_serotype_abundance[serotype_indx]
+        smoothed_serotype_abundance[serotype_indx] = np.convolve(abundance_tmp, 
+                                                                np.ones(100), 
+                                                                'same')/100  
+    source.data["abundance"] = list(smoothed_serotype_abundance)
 
     ### Start plotting
     p = bk.plotting.figure(title = title, 
