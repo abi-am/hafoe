@@ -128,10 +128,9 @@ defaults = list(
   output.dir = "hafoe_out",
   explore = F,
   identify = F,
-  overlap = F,
   read_length = 100,
-  step_size = 100,
-  vd_criterion = "avg",
+  step_size = 10,
+  vd_criterion = "sum",
   scripts.dir = "./",
   bowtie.dir = "../bowtie2-2.1.0/",
   bowtie.build.path = "../bowtie2-2.1.0/bowtie2-build.exe",
@@ -147,8 +146,6 @@ if(!explore & !identify){
   cat("Error: explore and identify cannot be false at the same time\n")
   config.set = F
 }
-
-overlap = set.property.logical(config.table, "overlap", defaults$overlap)
 
 read_length = set.property.integer(config.table, "read_length", defaults$read_length)
 step_size = set.property.integer(config.table, "step_size", defaults$step_size)
@@ -379,7 +376,6 @@ if (config.set) {
   cat("\toutput.dir = ", output.dir,"\n")
   cat("\trlib = ", rlib,"\n")
   cat("\tread_length =", read_length, "\n")
-  cat("\toverlap =", overlap, "\n")
   cat("\tstep_size =", step_size, "\n")
   cat("\tvd_criterion =", vd_criterion, "\n")
 
