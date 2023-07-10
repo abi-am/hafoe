@@ -94,7 +94,7 @@ if (explore) {
     #deduplicate fastq sequneces to get chimeric_library dataframe
     chimeric_library_fq <- microseq::readFastq(chimeric.lib.path)    
     chimeric_library <- deduplicate(file = chimeric_library_fq, 
-                                    out_path = paste0(output.dir, "/files/Chimeric_lib_simulated_unique_seq.csv")) 
+                                    out_path = paste0(output.dir, "/files/Chimeric_lib_unique_seq.csv")) 
     
     chimeric_library_fa <- chimeric_library[c('X', 'Sequence')]
     colnames(chimeric_library_fa) <- c("Header", "Sequence")
@@ -260,7 +260,6 @@ if (explore) {
   make.fastq.files(read_length = read_length,
                    fasta.path = file.path(output.dir, "files/clstr_chimeric_lib/clstr_chim_new.fasta"),
                    library_name = "chimeric_lib_representatives",
-                   overlap = overlap,
                    step_size = step_size)
   
   cat("\n\nAligning chimeric library representatives on parental index\n")
@@ -339,7 +338,6 @@ if (explore) {
                    path_unmapped = file.path(output.dir, "files/variant_description/chimeric_lib_representatives/csv/unmapped"),
                    read_length = read_length,
                    library_name = "chimeric_lib_representatives",
-                   overlap = overlap,
                    step_size = step_size, 
                    vd_criterion = vd_criterion)
 
@@ -475,10 +473,7 @@ if (explore) {
                           library_name = "chimeric library")
   dev.off()
 
-  
-  # cat("\n\nCalculate accuracy of variant description on representatives\n")
-  # cat("===================================================================\n\n")
-  
+
   get.reps.nj.matrix.nt(output_path = file.path(output.dir, "files"),
                         path_fasta = file.path(output.dir, "files/clstr_chimeric_lib/clstr_chim_new.fasta"),
                         nj_matrix = reps_nj_mat,

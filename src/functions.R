@@ -313,13 +313,9 @@ choose.new.representatives <- function(sizes_path, members_path, chimeric_librar
 }
 
 #change based on fastq file
-make.fastq.files <- function(read_length, fasta.path, library_name = "", overlap = F, step_size = read_length){
-  cat("Chopping each representative sequence into fragments of fixed size and storing into fastq files \n")
+make.fastq.files <- function(read_length, fasta.path, step_size, library_name = ""){
+  cat("Chopping each representative sequence into overlapping fragments of fixed size and storing into fastq files \n")
   cat(paste0("Fragment length: ", read_length, "\n"))
-  cat(paste0("Use overlapping fragments (TRUE/FALSE): ", overlap, "\n"))
-  if (overlap == F){
-    step_size = read_length
-  } 
   cat(paste0("Step size: ", step_size, "\n"))
   cat(paste0("Output path: ", file.path(output.dir, "files/variant_description", library_name, "fastq"), "\n"))
   if (step_size > read_length){
@@ -327,8 +323,11 @@ make.fastq.files <- function(read_length, fasta.path, library_name = "", overlap
   }
 
   data <- microseq::readFasta(fasta.path)  
-  data$name <- matrix(unlist(stringr::str_split(data$Header, "/")), ncol = 5, byrow = TRUE)[,1]
-  
+  if (str_count(data$Header, '_')[1] == 4){
+    data$name <- matrix(unlist(stringr::str_split(data$Header, "/")), ncol = 5, byrow = TRUE)[,1]
+  } else {
+    data$name <- data$Header
+  }  
     
   dir.create(file.path(output.dir, "files/variant_description"), showWarnings = F)
   dir.create(file.path(output.dir, "files/variant_description", library_name), showWarnings = F)
@@ -363,8 +362,8 @@ make.fastq.files <- function(read_length, fasta.path, library_name = "", overlap
 
 #parents_df change general case from parents fasta or separate input paramenter from .sh
 neighbor.joining <- function(parents_df, path_fasta, path_mapped, 
-                             path_unmapped, read_length, library_name = "", 
-                             overlap = F, step_size = read_length, vd_criterion = "avg"){
+                             path_unmapped, read_length, step_size,
+                             vd_criterion, library_name = ""){
   start_time <- Sys.time()
   
   
@@ -372,10 +371,6 @@ neighbor.joining <- function(parents_df, path_fasta, path_mapped,
                                         "files/variant_description", 
                                         library_name, 
                                         paste0(library_name, "_variant_description.csv")), "\n"))
-  
-  if (overlap == F){
-    step_size = read_length
-  }
   
   #make directory for output file if not created yet
   dir.create(file.path(output.dir, "files/variant_description"), showWarnings = F)
