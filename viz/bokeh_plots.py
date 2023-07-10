@@ -1,17 +1,7 @@
-import os
-from turtle import width
-#import seaborn as sns
 import bokeh as bk
-
-import panel as pn
-import panel.widgets as pnw
-import colorlover as cl
-import matplotlib as mpl
-import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 import math
-from bokeh.colors import RGB
 from bokeh.io import output_file, save, export_svgs, export_png
 from bokeh.io import show
 from bokeh.layouts import gridplot, row, widgetbox, layout, grid
