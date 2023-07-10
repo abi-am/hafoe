@@ -26,9 +26,8 @@ usage="\nProgram:\thafoe
 \n\n\t<-clustalo>\tclustalo path (optional: hafoe will use the default installation path in the user's directory)
 \n\n\t<-rlib>\tpath to the directory where newly installed R libraries should be stored (optional: hafoe will create rlib directory in the output directory by default)
 \n\n\t<-readlength>\tread length used for variant description (optional: default is 100)
-\n\n\t<--overlap>\toption directs hafoe to run variant description with overlap (optional)
-\n\n\t<-stepsize>\tstep size used for variant description with overlap (optional: the default is 100)
-\n\n\t<-vd_criterion>\tserotype choosing criterion used for variant description (optional: default is avg)
+\n\n\t<-stepsize>\tstep size used for chopping variants into overlapping fragments (optional: the default is 10)
+\n\n\t<-vd_criterion>\tserotype choosing criterion used for variant description (optional: default is sum)
 \n\n\t<-title_of_the_run>\tserotype choosing criterion used for variant description (optional: default is determined from csc/fq path)
 \n"
 
@@ -229,9 +228,6 @@ while [ $i -lt $n ]; do
 		"--identify")
 			declare identify=true
 		;;
-		"--overlap")
-			declare overlap=true
-		;;
 		#doesn't work
 		"-*|--*")
       echo -e "$(tput setaf 1;) \nError: Unknown option $arg $(tput sgr0)"
@@ -360,9 +356,6 @@ if [ -z $explore ]; then
 fi
 if [ -z $identify ]; then
 	identify=false
-fi
-if [ -z $overlap ]; then
-	overlap=false
 fi
 
 
@@ -525,10 +518,10 @@ if [ -z $readlength ]; then
 	readlength=100	
 fi
 if [ -z $stepsize ]; then	
-	stepsize=100
+	stepsize=10
 fi
 if [ -z $vd_criterion ]; then	
-	vd_criterion="avg"
+	vd_criterion="sum"
 fi
 if [ -z $title_of_the_run ]; then	
   title_of_the_run_=$(basename $chimericlib)
@@ -569,7 +562,6 @@ enriched $enriched
 explore.out $exploreout
 output.dir $out
 read_length $readlength
-overlap $overlap
 step_size $stepsize
 vd_criterion $vd_criterion
 title_of_the_run $title_of_the_run
