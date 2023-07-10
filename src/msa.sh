@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Multiple sequence alignment using cd-hit
+# Multiple sequence alignment using clustal omega
 
 while getopts c:i:o: flag
 do
