@@ -843,6 +843,15 @@ if (explore) {
                                       output_path = file.path(output.dir, "files/fold_changes.csv"))
       counts_fc <- cbind(counts_normalized, fold_changes)
       
+      chimeric_orf <- microseq::readFasta(file.path(output.dir,"files/Chimeric_ORF.fasta"))
+      chimeric_orf_names <- as.data.frame(matrix(unlist(stringr::str_split(chimeric_orf$Header, pattern = "/")), 
+                                    ncol = 5, byrow = TRUE))[[1]]
+      chimeric_orf['X'] <- chimeric_orf_names
+      
+      counts_mor <- dplyr::inner_join(counts_fc %>%
+                                        mutate(Representative = rownames(counts_fc)), 
+                                      chimeric_orf[c("Sequence", "X")], by = c("Representative" = "X")) 
+      write.csv(counts_mor, file.path(output.dir, "files/counts_mor.csv"), row.names = F, quote = F)
       
       cat("\n\nBetween sample comparison plots \n")
       cat("===================================================================\n\n")
