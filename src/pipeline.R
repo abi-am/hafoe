@@ -678,20 +678,28 @@ if (explore) {
       cat(paste0("Output path: ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "enriched_msa.clustal_num"), "\n"))
       cat(paste0("Output path: ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "reduced_msa.clustal_num"), "\n\n"))
       
-      o <- system(paste0(file.path(scripts.dir, "msa.sh"),
-                         " -c ", clustalo.path,
-                         " -i ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "enriched_representatives.fasta"),
-                         " -o ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "enriched_msa.clustal_num")),
-                  intern = TRUE) 
-      cat(o, sep = "\n\n")
+      if (nrow(enriched) > 1){
+        o <- system(paste0(file.path(scripts.dir, "msa.sh"),
+                           " -c ", clustalo.path,
+                           " -i ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "enriched_representatives.fasta"),
+                           " -o ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "enriched_msa.clustal_num")),
+                    intern = TRUE) 
+        cat(o, sep = "\n\n")
+      } else {
+        cat(paste0("Warning: Only one enriched representative, multiple sequence alignment not performed", "\n"))
+      }
       
       
-      o <- system(paste0(file.path(scripts.dir, "msa.sh"),
-                         " -c ", clustalo.path,
-                         " -i ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "reduced_representatives.fasta"),
-                         " -o ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "reduced_msa.clustal_num")),
-                  intern = TRUE) 
-      cat(o, sep = "\n")
+      if (nrow(reduced) > 1){
+        o <- system(paste0(file.path(scripts.dir, "msa.sh"),
+                           " -c ", clustalo.path,
+                           " -i ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "reduced_representatives.fasta"),
+                           " -o ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "reduced_msa.clustal_num")),
+                    intern = TRUE) 
+        cat(o, sep = "\n")
+      } else {
+        cat(paste0("Warning: Only one reduced representative, multiple sequence alignment not performed", "\n"))
+      }
       
       
       cat("\n\nGet conserved and gap regions from multiple sequence alignment\n")
@@ -699,23 +707,31 @@ if (explore) {
       cat(paste0("Output path: ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "/"), "\n"))
       cat(paste0("Output path: ", file.path(output.dir, "files", paste0("enriched1_", en1_name), "/"), "\n"))
       
-      out <- get.conserved.positions(aln_file_path = file.path(output.dir, "files", paste0("enriched1_", en1_name), "enriched_msa.clustal_num"))
-      identity_ranges_enriched <- out[[1]]
-      alignment_enriched <- out[[2]]
+      if (nrow(enriched) > 1){
+        out <- get.conserved.positions(aln_file_path = file.path(output.dir, "files", paste0("enriched1_", en1_name), "enriched_msa.clustal_num"))
+        identity_ranges_enriched <- out[[1]]
+        alignment_enriched <- out[[2]]
+        
+        matrix_nt_enriched <- add.gap.info(alignment = alignment_enriched, 
+                                           nj_matrix = reps_nj_mat, 
+                                           step_size = step_size, 
+                                           nj_by_nt = T) 
+      } else {
+        cat(paste0("Warning: Only one enriched representative, skipped this step", "\n"))
+      }
       
-      out <- get.conserved.positions(aln_file_path = file.path(output.dir, "files", paste0("enriched1_", en1_name), "reduced_msa.clustal_num"))
-      identity_ranges_reduced <- out[[1]]
-      alignment_reduced <- out[[2]]
-      
-      matrix_nt_enriched <- add.gap.info(alignment = alignment_enriched, 
-                                         nj_matrix = reps_nj_mat, 
-                                         step_size = step_size, 
-                                         nj_by_nt = T) 
-      matrix_nt_reduced <- add.gap.info(alignment = alignment_reduced, 
-                                        nj_matrix = reps_nj_mat, 
-                                        step_size = step_size, 
-                                        nj_by_nt = T) 
-      
+      if (nrow(reduced) > 1){
+        out <- get.conserved.positions(aln_file_path = file.path(output.dir, "files", paste0("enriched1_", en1_name), "reduced_msa.clustal_num"))
+        identity_ranges_reduced <- out[[1]]
+        alignment_reduced <- out[[2]]
+  
+        matrix_nt_reduced <- add.gap.info(alignment = alignment_reduced, 
+                                          nj_matrix = reps_nj_mat, 
+                                          step_size = step_size, 
+                                          nj_by_nt = T) 
+      } else {
+        cat(paste0("Warning: Only one reduced representative, skipped this step", "\n"))
+      }
       
       #Use AAV2  Variable regions for plot
       aav2_vr_ranges <- data.frame(VR = c("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"), 
@@ -729,101 +745,112 @@ if (explore) {
       cat(paste0("Output path: ", file.path(output.dir, "reports", paste0("enriched1_", en1_name), "variant_description_enriched_conserved.pdf"), "\n"))
       cat(paste0("Output path: ", file.path(output.dir, "reports", paste0("enriched1_", en1_name), "variant_description_reduced_conserved.pdf"), "\n"))
       
-      graphics.off()
-      pdf(file.path(output.dir, "reports", paste0("enriched1_", en1_name), "variant_description_enriched_conserved.pdf"), width=8, height=5)
-      # doesn't recognize identity_ranges
-      # plot.variant.description.conserved(matrix = matrix_nt_enriched, identity_ranges = identity_ranges_enriched,
-      #                                    col_df = col_df,
-      #                                    library_name = "enriched representative variants")
-      ####
-      matrix = matrix_nt_enriched
-      identity_ranges = identity_ranges_enriched
-      col_df = col_df
-      library_name = "enriched representative variants\n"
-
-      gplots::heatmap.2(matrix,
-                        dendrogram='none',
-                        Colv=FALSE,
-                        Rowv=TRUE,
-                        trace="none",
-                        breaks = seq(-0.5, 18.5, 1),
-                        col = col_df$col,
-                        key = FALSE,
-                        cexRow=0.7,
-                        add.expr = list(rect(xleft = identity_ranges$start_nt,
-                                             xright = identity_ranges$end_nt,
-                                             ybottom = par("usr")[3], ytop = par("usr")[4],
-                                             border = NA,
-                                             col = adjustcolor("blue", alpha = 0.2)),
-                                        rect(xleft = aav2_vr_ranges$start_nt,   #VRs
-                                             xright = aav2_vr_ranges$end_nt,
-                                             ybottom = par("usr")[3], ytop = par("usr")[4],
-                                             border = NA, #"red",
-                                             density = 20,
-                                             col = adjustcolor("red", alpha = 0.5))))
-
-      title(paste0("Variant description of ", library_name),
-            line = -2,
-            adj = 0.6)
-      legend(x="bottomleft",
-             legend=rownames(col_df),
-             fill=col_df$col,
-             title = "AAV serotypes",
-             title.adj = 0.2,
-             inset=c(-.07, -.07),
-             xpd=TRUE,
-             box.lwd = 0,
-             cex = 0.7)
-
-      dev.off()
+      if (nrow(enriched) > 1){
+        graphics.off()
+        pdf(file.path(output.dir, "reports", paste0("enriched1_", en1_name), "variant_description_enriched_conserved.pdf"), width=8, height=5)
+        # doesn't recognize identity_ranges
+        # plot.variant.description.conserved(matrix = matrix_nt_enriched, identity_ranges = identity_ranges_enriched,
+        #                                    col_df = col_df,
+        #                                    library_name = "enriched representative variants")
+        ####
+        matrix = matrix_nt_enriched
+        identity_ranges = identity_ranges_enriched
+        col_df = col_df
+        library_name = "enriched representative variants\n"
+  
+        gplots::heatmap.2(matrix,
+                          dendrogram='none',
+                          Colv=FALSE,
+                          Rowv=TRUE,
+                          trace="none",
+                          breaks = seq(-0.5, 18.5, 1),
+                          col = col_df$col,
+                          key = FALSE,
+                          cexRow=0.7,
+                          add.expr = list(rect(xleft = identity_ranges$start_nt,
+                                               xright = identity_ranges$end_nt,
+                                               ybottom = par("usr")[3], ytop = par("usr")[4],
+                                               border = NA,
+                                               col = adjustcolor("blue", alpha = 0.2)),
+                                          rect(xleft = aav2_vr_ranges$start_nt,   #VRs
+                                               xright = aav2_vr_ranges$end_nt,
+                                               ybottom = par("usr")[3], ytop = par("usr")[4],
+                                               border = NA, #"red",
+                                               density = 20,
+                                               col = adjustcolor("red", alpha = 0.5))))
+  
+        title(paste0("Variant description of ", library_name),
+              line = -2,
+              adj = 0.6)
+        legend(x="bottomleft",
+               legend=rownames(col_df),
+               fill=col_df$col,
+               title = "AAV serotypes",
+               title.adj = 0.2,
+               inset=c(-.07, -.07),
+               xpd=TRUE,
+               box.lwd = 0,
+               cex = 0.7)
+  
+        dev.off()
+      } else {
+        cat(paste0("Warning: Only one enriched representative, skipped this step", "\n"))
+      }
       
-      graphics.off()
-      pdf(file.path(output.dir, "reports", paste0("enriched1_", en1_name), "variant_description_reduced_conserved.pdf"), width=8, height=5)
-      # plot.variant.description.conserved(matrix = matrix_nt_reduced, 
-      #                                    identity_ranges = as.data.frame(identity_ranges_reduced), 
-      #                                    col_df = col_df,
-      #                                    library_name = "reduced representative variants")
       
-      matrix = matrix_nt_reduced
-      identity_ranges = as.data.frame(identity_ranges_reduced)
-      col_df = col_df
-      library_name = "reduced representative variants\n"
+      if (nrow(reduced) > 1){
+        graphics.off()
+        pdf(file.path(output.dir, "reports", paste0("enriched1_", en1_name), "variant_description_reduced_conserved.pdf"), width=8, height=5)
+        # plot.variant.description.conserved(matrix = matrix_nt_reduced, 
+        #                                    identity_ranges = as.data.frame(identity_ranges_reduced), 
+        #                                    col_df = col_df,
+        #                                    library_name = "reduced representative variants")
+        
+        matrix = matrix_nt_reduced
+        identity_ranges = as.data.frame(identity_ranges_reduced)
+        col_df = col_df
+        library_name = "reduced representative variants\n"
+        
+        gplots::heatmap.2(matrix, 
+                          dendrogram='none', 
+                          Colv=FALSE, 
+                          Rowv=TRUE, 
+                          trace="none", 
+                          breaks = seq(-0.5, 18.5, 1),
+                          col = col_df$col,
+                          key = FALSE, 
+                          cexRow=0.7,
+                          add.expr = list(rect(xleft = identity_ranges$start_nt, 
+                                               xright = identity_ranges$end_nt, 
+                                               ybottom = par("usr")[3], ytop = par("usr")[4], 
+                                               border = NA, 
+                                               col = adjustcolor("blue", alpha = 0.2)),
+                                          rect(xleft = aav2_vr_ranges$start_nt,   #VRs
+                                               xright = aav2_vr_ranges$end_nt, 
+                                               ybottom = par("usr")[3], ytop = par("usr")[4], 
+                                               border = NA, #"red", 
+                                               density = 20, 
+                                               col = adjustcolor("red", alpha = 0.5))))
+        
+        title(paste0("Variant description of ", library_name), 
+              line = -2, 
+              adj = 0.6)
+        legend(x="bottomleft", 
+               legend=rownames(col_df), 
+               fill=col_df$col,  
+               title = "AAV serotypes", 
+               title.adj = 0.2, 
+               inset=c(-.07, -.07), 
+               xpd=TRUE,
+               box.lwd = 0, 
+               cex = 0.7)
+        
+        dev.off()
+      } else {
+        cat(paste0("Warning: Only one reduced representative, skipped this step", "\n"))
+      }
       
-      gplots::heatmap.2(matrix, 
-                        dendrogram='none', 
-                        Colv=FALSE, 
-                        Rowv=TRUE, 
-                        trace="none", 
-                        breaks = seq(-0.5, 18.5, 1),
-                        col = col_df$col,
-                        key = FALSE, 
-                        cexRow=0.7,
-                        add.expr = list(rect(xleft = identity_ranges$start_nt, 
-                                             xright = identity_ranges$end_nt, 
-                                             ybottom = par("usr")[3], ytop = par("usr")[4], 
-                                             border = NA, 
-                                             col = adjustcolor("blue", alpha = 0.2)),
-                                        rect(xleft = aav2_vr_ranges$start_nt,   #VRs
-                                             xright = aav2_vr_ranges$end_nt, 
-                                             ybottom = par("usr")[3], ytop = par("usr")[4], 
-                                             border = NA, #"red", 
-                                             density = 20, 
-                                             col = adjustcolor("red", alpha = 0.5))))
       
-      title(paste0("Variant description of ", library_name), 
-            line = -2, 
-            adj = 0.6)
-      legend(x="bottomleft", 
-             legend=rownames(col_df), 
-             fill=col_df$col,  
-             title = "AAV serotypes", 
-             title.adj = 0.2, 
-             inset=c(-.07, -.07), 
-             xpd=TRUE,
-             box.lwd = 0, 
-             cex = 0.7)
-      
-      dev.off()
     }
     
     # if multiple input samples 
