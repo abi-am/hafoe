@@ -323,7 +323,7 @@ make.fastq.files <- function(read_length, fasta.path, step_size, library_name = 
   }
 
   data <- microseq::readFasta(fasta.path)  
-  if (str_count(data$Header, '_')[1] == 4){
+  if (str_count(data$Header, '/')[1] == 4){
     data$name <- matrix(unlist(stringr::str_split(data$Header, "/")), ncol = 5, byrow = TRUE)[,1]
   } else {
     data$name <- data$Header
