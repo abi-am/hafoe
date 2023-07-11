@@ -656,7 +656,8 @@ plot.cluster.size.distribution <- function(cluster_members, size_thresh, similar
 
 
 plot.variant.description <- function(matrix, col_df, library_name = ""){
-  gplots::heatmap.2(matrix, 
+  matrix_final <- if (is.matrix(matrix)) matrix else matrix(rep(matrix,2),byrow=T, nrow=2)
+  gplots::heatmap.2(matrix_final, 
                     dendrogram='none', 
                     Colv=FALSE, 
                     Rowv=FALSE, #TRUE 
@@ -683,7 +684,8 @@ plot.variant.description <- function(matrix, col_df, library_name = ""){
 
 
 plot.variant.description.conserved <- function(matrix, col_df, identity_ranges, library_name = ""){
-  gplots::heatmap.2(matrix, 
+  matrix_final <- if (is.matrix(matrix)) matrix else matrix(rep(matrix,2),byrow=T, nrow=2)
+  gplots::heatmap.2(matrix_final, 
                     dendrogram='none', 
                     Colv=FALSE, 
                     Rowv=TRUE, 
