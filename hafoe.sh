@@ -574,4 +574,4 @@ Rscript $program_dir/src/validate.options.R $out/config/config_file
 
 #After running the validate.options.R and pipline.R, 
 #run viz/generate_plots.py to generate bokeh reports
-python3 viz/generate_plots.py $out
+python3 $program_dir/viz/generate_plots.py $out
