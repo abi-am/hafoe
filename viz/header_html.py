@@ -21,7 +21,8 @@ def get_dir_size(path='.'):
     return total
 
 def get_version():
-    version_path = os.path.abspath(os.path.join(os.curdir, "version.txt"))
+    curr_script_dir = os.path.dirname(os.path.abspath(__file__))
+    version_path = os.path.normpath(os.path.join(curr_script_dir, "../version.txt"))
     f = open(version_path, 'r')
     version = f.read()
 
@@ -219,8 +220,8 @@ def get_enriched_summary_table(enriched1_orf_summary_path_paths):
 
 def get_html_body(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary_path_paths):
 
-    curr_dir = os.getcwd()
-    with open(os.path.join(curr_dir, "viz", "template.html"), "r") as f:
+    curr_script_dir = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(curr_script_dir, "template.html"), "r") as f:
         template = f.read()
 
         if ('title_of_the_run' in config_df[0].values) and config_df.loc[config_df[0] == "title_of_the_run"].iloc[0, 1]  is not None and config_df.loc[config_df[0] == "title_of_the_run"].iloc[0, 1] != 'none':
