@@ -287,11 +287,6 @@ def get_html_body(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary
         else:
             read_length = "None"
 
-        if ('overlap' in config_df[0].values) and config_df.loc[config_df[0] == "overlap"].iloc[0, 1]  is not None and config_df.loc[config_df[0] == "overlap"].iloc[0, 1] != 'none':
-            overlap = config_df.loc[config_df[0] == "overlap"].iloc[0, 1]
-        else:
-            overlap = "None"
-
         if ('step_size' in config_df[0].values) and config_df.loc[config_df[0] == "step_size"].iloc[0, 1]  is not None and config_df.loc[config_df[0] == "step_size"].iloc[0, 1] != 'none':
             step_size = config_df.loc[config_df[0] == "step_size"].iloc[0, 1]
         else:
@@ -320,7 +315,6 @@ def get_html_body(config_df, chimeric_orf_summary_df_path, enriched1_orf_summary
                                  identify=identify,
                                  read_length=read_length,
                                  step_size=step_size,
-                                 overlap=overlap,
                                  vd_criterion=vd_criterion,
                                  chimeric_orf_summary=get_chimeric_summary_table(chimeric_orf_summary_df_path),
                                  enriched_orf_summary=get_enriched_summary_table(enriched1_orf_summary_path_paths), 
