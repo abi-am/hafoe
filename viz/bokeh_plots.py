@@ -346,7 +346,7 @@ def view_cluster_size_distribution(clustering_data, topn = 20, lower_cut_size_ =
 
     ### Size plots
     p_linear_size = bk.plotting.figure(height=500, width=1100,
-                                  y_range = [1e-2, 7e3], 
+                                  y_range = [1e-2, math.ceil(max(source.data["sizes"].values)/100)*100],  
                                   x_range = source.data["reps"].values, 
                                   title="Chimeric library cluster size for top "+str(topn)+" clusters", 
                                   sizing_mode="scale_both", 
@@ -362,7 +362,7 @@ def view_cluster_size_distribution(clustering_data, topn = 20, lower_cut_size_ =
                   fill_color = 'lightblue')
 
     p_log_size = bk.plotting.figure(height=500, width=1100,
-                                  y_range = [1e-2, 5e3], 
+                                  y_range = [1e-2, math.ceil(max(source.data["sizes"].values)*10)], 
                                   x_range = source.data["reps"].values, 
                                   title="Chimeric library cluster size for top "+str(topn)+" clusters", 
                                   sizing_mode="scale_both", 
@@ -383,7 +383,7 @@ def view_cluster_size_distribution(clustering_data, topn = 20, lower_cut_size_ =
 
     ### Abundance plots
     p_linear_abundance = bk.plotting.figure(height=500, width=1100,
-                                          y_range = [1e-2, 7e3], 
+                                          y_range = [1e-2, math.ceil(max(source.data["abundances"].values)/100)*100], 
                                           x_range = source.data["reps"].values, 
                                           title="Chimeric library cluster abundance for top "+str(topn)+" clusters", 
                                           sizing_mode="scale_both", 
@@ -399,24 +399,42 @@ def view_cluster_size_distribution(clustering_data, topn = 20, lower_cut_size_ =
                           fill_color = 'lightblue')
 
     p_log_abundance = bk.plotting.figure(height=500, width=1100,
-                                  y_range = [1e-2, 5e3], 
+                                  y_range = [1e-2, max(source.data["abundances"].values)*10], 
                                   x_range = source.data["reps"].values, 
                                   title="Chimeric library cluster abundance for top "+str(topn)+" clusters", 
                                   sizing_mode="scale_both", 
                                   y_axis_type="log")
 
 
-    p_log_abundance.vbar(x = 'reps', 
-                  bottom = 1e-2, 
-                  top = 'abundances', 
-                  width = 0.7, 
-                  source = source,
-                  line_color = 'white', 
-                  fill_color = 'lightblue')
+    p_log_abundance_bars = p_log_abundance.vbar(x = 'reps', 
+                                                bottom = 1e-2, 
+                                                top = 'abundances', 
+                                                width = 0.7, 
+                                                source = source,
+                                                line_color = 'white', 
+                                                fill_color = 'lightblue')
+
+    ### Add log transformed values to source for hovering
+    log_sizes = np.log10(source.data["sizes"].values)
+    source.data['log_sizes'] = log_sizes
+    log_abundances = np.log10(source.data["abundances"].values)
+    source.data['log_abundances'] = log_abundances
 
     ### Rotate the x-axis labels
     p_linear_abundance.xaxis.major_label_orientation = np.pi/4
     p_log_abundance.xaxis.major_label_orientation = np.pi/4
+
+    tooltips1 = [("Cluster size", "@sizes"),]
+    p_linear_size.add_tools(bk.models.HoverTool(tooltips=tooltips1))
+
+    tooltips2 = [("Cluster abundance", "@abundances"),]
+    p_linear_abundance.add_tools(bk.models.HoverTool(tooltips=tooltips2))
+
+    tooltips3 = [("Cluster size", "@log_sizes"),]
+    p_log_size.add_tools(bk.models.HoverTool(tooltips=tooltips3))
+
+    tooltips4 = [("Cluster abundance", "@log_abundances"),]
+    p_log_abundance.add_tools(bk.models.HoverTool(renderers=[p_log_abundance_bars], tooltips=tooltips4))
 
     ### Combine the log and linear plots into separate tabs of a single panel
     panels = [bk.models.widgets.Panel(child = p_linear_size, title="Cluster size, linear scale"), 
