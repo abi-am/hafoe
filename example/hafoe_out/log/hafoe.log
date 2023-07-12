@@ -1,0 +1,408 @@
+
+Configuration successful
+===================================================================
+
+hafoe will execute with the following parameters:
+	explore = TRUE 
+	identify = TRUE 
+	scripts.dir = ./src 
+	bowtie.build.path = /usr/bin/bowtie2-build 
+	bowtie.align.path = /usr/bin/bowtie2 
+	samtools.path = /usr/bin/samtools 
+	cd_hit_est.path = /home/tatevik/cd-hit-v4.8.1-2019-0228/cd-hit-est 
+	cd_hit_est_2d.path = /home/tatevik/cd-hit-v4.8.1-2019-0228/cd-hit-est-2d 
+	clustalo.path = /usr/bin/clustalo 
+	parent.path = example/input_files/AAV_all16_new.fasta 
+	chimeric.lib.path = example/input_files/data1/Chimeric_lib_simulated_ccs.csv 
+	enriched.path = example/input_files/data1/enriched 
+	output.dir =  example/hafoe_out 
+	rlib =  /home/tatevik/R/x86_64-pc-linux-gnu-library/4.1 
+	read_length = 100 
+	step_size = 10 
+	vd_criterion = sum 
+
+Checking and installing dependencies
+===================================================================
+
+Following R packages were installed in /home/tatevik/R/x86_64-pc-linux-gnu-library/4.1 directory and/or called:
+	dplyr: version 1.0.10
+	ORFik: version 1.12.13
+	plotly: version 4.10.0
+	ggplot2: version 3.4.0
+	gplots: version 3.1.3
+	microseq: version 2.1.4
+	Biostrings: version 2.60.2
+	stringr: version 1.5.0
+	cowplot: version 1.1.1
+	seqinr: version 4.2.8
+
+
+Filtering the chimeric library by ORF and original sequence lengths
+===================================================================
+
+File: example/input_files/data1/Chimeric_lib_simulated_ccs.fasta
+Minimum ORF length: 600
+Maximum sequence length: 3000
+Number of sequences before filtering: 3201
+Number of sequences after filtering: 24
+ORF length summary statistics
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1830    1913    1928    1971    2043    2205 
+
+
+
+Clustering the filtered chimeric library
+===================================================================
+
+Program: cd-hit-est
+Command: /home/tatevik/cd-hit-v4.8.1-2019-0228/cd-hit-est 
+	 -i example/hafoe_out/files/Chimeric_ORF.fasta 
+	 -o example/hafoe_out/files/clstr_chimeric_lib/clstr_chim.fasta 
+	 -g 1 
+	 -d 100 
+	 -c 0.9 
+	 -n 9 
+	 -G 0 
+	 -aL 0.9 
+cd-hit-est path: /home/tatevik/cd-hit-v4.8.1-2019-0228/cd-hit-est 
+Input path: example/hafoe_out/files/Chimeric_ORF.fasta 
+Output path: example/hafoe_out/files/clstr_chimeric_lib 
+Log path: example/hafoe_out/log/cd_hit_chimeric.log 
+Sequence identity threshold, default 0.9 (-c): 0.9 
+Identity type, default 1 (-G):  0 
+	(if set to 1, use global sequence identity, 
+	if set to 0, then use local sequence identity, 
+	calculated as number of identical bases in alignment
+	divided by the length of the alignment) 
+Alignment coverage for the longer sequence, default 0.0 (-aL): 0.9 
+word_length, default 10, see CD-HIT user's guide for choosing it (-n): 9 
+
+Number of clusters: 14
+Cluster size summary statistics
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   1.000   1.500   1.714   2.000   5.000 
+
+
+Choosing new representative sequences for the clusters
+===================================================================
+
+Choosing a new representative ORF sequence for each cluster based on: 
+	1. greatest sequence abundance in the input chimeric library
+	2. maximum ORF length
+Output path: example/hafoe_out/files/clstr_chimeric_lib/clstr_chim_new.fasta
+
+
+Plotting the cluster size distribution
+===================================================================
+
+Output path: example/hafoe_out/reports/cluster_size_distr_chimeric_lib.pdf
+
+
+Building index on parental library
+===================================================================
+
+Command: /usr/bin/bowtie2-build 
+	 example/input_files/AAV_all16_new.fasta  
+	 example/hafoe_out/files/parent_index/AAV 
+bowtie2-build path: /usr/bin/bowtie2-build 
+Input path: example/input_files/AAV_all16_new.fasta 
+Output path: example/hafoe_out/files/parent_index 
+Log path: example/hafoe_out/log/bowtie_build.log 
+
+
+Doing variant description on chimeric library representatives
+===================================================================
+
+
+Making fastq files for chimeric library representatives
+-------------------------------------------------------------------
+
+Chopping each representative sequence into overlapping fragments of fixed size and storing into fastq files 
+Fragment length: 100
+Step size: 10
+Output path: example/hafoe_out/files/variant_description/chimeric_lib_representatives/fastq
+
+
+Aligning chimeric library representatives on parental index
+-------------------------------------------------------------------
+
+Command: /usr/bin/bowtie2 
+	 -p 4 
+	 -a 
+	 --no-unal 
+	 -L 30 
+	 -D 2 
+	 -x example/hafoe_out/files/parent_index/AAV  
+	 --un example/hafoe_out/files/variant_description/chimeric_lib_representatives/unmapped/.fq 
+	 -S example/hafoe_out/files/variant_description/chimeric_lib_representatives/sam/.sam 
+bowtie2 path: /usr/bin/bowtie2 
+Reference index path: example/hafoe_out/files/parent_index/AAV 
+Output path for mapped reads: example/hafoe_out/files/variant_description/chimeric_lib_representatives/bam 
+Output path for unmapped reads: example/hafoe_out/files/variant_description/chimeric_lib_representatives/unmapped 
+Log path: example/hafoe_out/log/bowtie_align_representatives.log 
+Seed length (-L): 30 
+Number of seed extention failed attemps, default 15 (-D): 2 
+	(Up to <int> consecutive seed extension attempts can fail
+	before Bowtie 2 moves on, using the alignments found so far. 
+	A seed extension fails if it does not yield a new best or
+	a new second-best alignment. This limit is automatically 
+	adjusted up when -k or -a are specified.) 
+
+Running...: 0% done
+Elapsed Time: 0 seconds
+
+Running...: 25% done
+Elapsed Time: 1 seconds
+
+Running...: 50% done
+Elapsed Time: 1 seconds
+
+Running...: 75% done
+Elapsed Time: 2 seconds
+
+Running...: 100% done
+Elapsed Time: 2 seconds
+
+
+Getting required files for variant description
+-------------------------------------------------------------------
+
+
+Processing mapped reads
+
+
+Running...: 0% done
+Elapsed Time: 0 seconds
+
+Running...: 25% done
+Elapsed Time: 1 seconds
+
+Running...: 50% done
+Elapsed Time: 1 seconds
+
+Running...: 75% done
+Elapsed Time: 1 seconds
+
+Running...: 100% done
+Elapsed Time: 1 seconds
+
+
+Processing unmapped reads
+
+
+Running...: 0% done
+Elapsed Time: 0 seconds
+
+Running...: 25% done
+Elapsed Time: 0 seconds
+
+Running...: 50% done
+Elapsed Time: 0 seconds
+
+Running...: 75% done
+Elapsed Time: 0 seconds
+
+Running...: 100% done
+Elapsed Time: 0 seconds
+
+
+Doing neighbor-aware serotype identification
+-------------------------------------------------------------------
+
+Output path: example/hafoe_out/files/variant_description/chimeric_lib_representatives/chimeric_lib_representatives_variant_description.csv
+
+Abundance of AAV serotypes in the chimeric library
+                   Freq(%)
+AAV2                 26.32
+AAV6                 18.03
+AAVrh8               17.35
+AAV13                 7.87
+AAV8                  7.05
+AAV5                  5.93
+AAV1                  5.41
+AAV9                  4.16
+AAV3                  2.63
+multiple alignment    2.10
+AAV7                  1.86
+AAVrh10               1.27
+no alignment          0.00
+AAV4                  0.00
+AAV10                 0.00
+AAV11                 0.00
+AAV12                 0.00
+AAVrh32               0.00
+
+
+Plotting the cluster abundance
+===================================================================
+
+Output path: example/hafoe_out/reports/cluster_abundance_chimeric_lib.pdf
+
+
+Plotting variant description of chimeric library representatives
+===================================================================
+
+Output path: example/hafoe_out/reports/variant_description_chimeric_rep.pdf
+
+
+Multiple sequence alignment of top 20 chimeric library representatives
+===================================================================
+
+Output path: example/hafoe_out/files/top20_rep_msa.clustal_num
+Command: /usr/bin/clustalo 
+
+	 -i example/hafoe_out/files/top20_representatives.fasta 
+
+	 -o example/hafoe_out/files/top20_rep_msa.clustal_num 
+
+	 --outfmt clu 
+
+clustalo path: /usr/bin/clustalo 
+
+Input path: example/hafoe_out/files/top20_representatives.fasta 
+
+Output path: example/hafoe_out/files/top20_rep_msa.clustal_num 
+
+
+Get conserved and gap regions from multiple sequence alignment
+===================================================================
+
+Output path: example/hafoe_out/files/
+
+
+Plot variant description of top20 representatives
+with multiple sequence alignment gaps
+===================================================================
+
+Output path: example/hafoe_out/reports/variant_description_top20_msa.pdf
+
+
+Plotting distribution of AAV serotypes in chimeric library
+based on variant description of representatives and their
+abundance the chimeric library
+===================================================================
+
+Output path: example/hafoe_out/reports/serotype_distribution_chimeric_lib.pdf
+
+
+Filtering the enrichment cycle 1 library Enriched_lib_simulated_ccs
+by ORF and original sequence lengths
+===================================================================
+
+File: example/input_files/data1/enriched/Enriched_lib_simulated_ccs.fastq.gz
+Minimum ORF length: 600
+Maximum sequence length: 3000
+Number of sequences before filtering: 1137
+Number of sequences after filtering: 10
+ORF length summary statistics
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1824    1859    2124    2039    2168    2214 
+
+
+
+Clustering enriched 1 library with chimeric library representatives
+===================================================================
+
+Program: cd-hit-est-2d
+Command: /home/tatevik/cd-hit-v4.8.1-2019-0228/cd-hit-est-2d 
+	 -i  
+	 -o example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/clstr/clstr_enriched1.fasta 
+	 -g 1 
+	 -d 100 
+	 -c 0.95 
+	 -n 10 
+	 -G 0 
+	 -aL 0.95 
+cd-hit-est path: /home/tatevik/cd-hit-v4.8.1-2019-0228/cd-hit-est-2d 
+Input 1 (chimeric representatives) path: example/hafoe_out/files/clstr_chimeric_lib/clstr_chim_new.fasta 
+Input 2 (enriched library) path: example/hafoe_out/files/Enriched1_Enriched_lib_simulated_ccs_ORF.fasta 
+Output path: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/clstr 
+Log path: example/hafoe_out/log/cd_hit_enriched1_Enriched_lib_simulated_ccs.log 
+Sequence identity threshold, default 0.9 (-c): 0.95 
+Identity type, default 1 (-G):  0 
+	(if set to 1, use global sequence identity, 
+	if set to 0, then use local sequence identity, 
+	calculated as number of identical bases in alignment
+	divided by the length of the alignment) 
+Alignment coverage for the longer sequence, default 0.0 (-aL): 0.95 
+word_length, default 10, see CD-HIT user's guide for choosing it (-n): 10 
+memory limit (in MB) for the program, default 800, 0 for unlimitted (-M): 8000 
+
+Number of clusters: 14
+Cluster size summary statistics
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.000   1.000   1.000   1.071   1.000   2.000 
+
+
+Creating counts.csv summary table for representative enrichment
+===================================================================
+
+Output path: example/hafoe_out/files/counts.csv
+
+
+Plotting top representatives' abundance in enriched 1 library
+===================================================================
+
+Output path: example/hafoe_out/reports/enriched1_Enriched_lib_simulated_ccs/top_rep_en1_barplot.pdf
+
+
+Filter enriched, reduced representatives based on En1/Chim ratio
+===================================================================
+
+Output path for enriched: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/enriched_representatives.csv
+Output path for reduced: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/reduced_representatives.csv
+Output path for enriched: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/enriched_representatives.fasta
+Output path for reduced: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/reduced_representatives.fasta
+
+1 enriched sequences found.
+13 reduced sequences found.
+
+
+Plot enriched, reduced representatives based on En1/Chim ratio
+===================================================================
+
+Output path for enriched: example/hafoe_out/reports/enriched1_Enriched_lib_simulated_ccs/enriched_reps_en1.pdf
+Output path for reduced: example/hafoe_out/reports/enriched1_Enriched_lib_simulated_ccs/reduced_reps_en1.pdf
+
+
+Plotting variant description of enriched, reduced representatives
+===================================================================
+
+Output path: example/hafoe_out/reports/enriched1_Enriched_lib_simulated_ccs/variant_description_enriched.pdf
+Output path: example/hafoe_out/reports/enriched1_Enriched_lib_simulated_ccs/variant_description_reduced.pdf
+
+
+Multiple sequence alignment of enriched, reduced representatives
+===================================================================
+
+Output path: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/enriched_msa.clustal_num
+Output path: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/reduced_msa.clustal_num
+
+Warning: Only one enriched representative, multiple sequence alignment not performed
+Command: /usr/bin/clustalo 
+	 -i example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/reduced_representatives.fasta 
+	 -o example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/reduced_msa.clustal_num 
+	 --outfmt clu 
+clustalo path: /usr/bin/clustalo 
+Input path: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/reduced_representatives.fasta 
+Output path: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/reduced_msa.clustal_num 
+
+
+Get conserved and gap regions from multiple sequence alignment
+===================================================================
+
+Output path: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs//
+Output path: example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs//
+Warning: Only one enriched representative, skipped this step
+
+
+Plot variant description of enriched and reduced representatives
+with conserved regions and gaps
+===================================================================
+
+Output path: example/hafoe_out/reports/enriched1_Enriched_lib_simulated_ccs/variant_description_enriched_conserved.pdf
+Output path: example/hafoe_out/reports/enriched1_Enriched_lib_simulated_ccs/variant_description_reduced_conserved.pdf
+Warning: Only one enriched representative, skipped this step
+Warning messages:
+1: Removed 16 rows containing missing values (`position_stack()`). 
+2: Removed 16 rows containing missing values (`geom_text()`). 

@@ -1,0 +1,42 @@
+================================================================
+Program: CD-HIT, V4.8.1 (+OpenMP), Oct 08 2022, 22:41:11
+Command: /home/tatevik/cd-hit-v4.8.1-2019-0228/cd-hit-est-2d
+         -i
+         example/hafoe_out/files/clstr_chimeric_lib/clstr_chim_new.fasta
+         -i2
+         example/hafoe_out/files/Enriched1_Enriched_lib_simulated_ccs_ORF.fasta
+         -o
+         example/hafoe_out/files/enriched1_Enriched_lib_simulated_ccs/clstr/clstr_enriched1.fasta
+         -g 1 -d 100 -c 0.95 -n 10 -G 0 -aL 0.95 -M 8000
+
+Started: Wed Jul 12 18:54:34 2023
+================================================================
+                            Output                              
+----------------------------------------------------------------
+total seq in db1: 14
+total seq in db2: 10
+longest and shortest : 2205 and 1836
+Total letters: 28038
+Sequences have been sorted
+longest and shortest : 2214 and 1824
+Total letters: 20391
+
+Approximated minimal memory consumption:
+Sequence        : 0M
+Buffer          : 1 X 12M = 12M
+Table           : 1 X 16M = 16M
+Miscellaneous   : 4M
+Total           : 33M
+
+Table limit with the given memory limit:
+Max number of representatives: 3755615
+Max number of word counting entries: 995808075
+
+10.0%20.0%30.0%40.0%50.0%60.0%70.0%80.0%90.0%..........        0  compared          0  clusters
+
+10 compared	1 clustered
+writing non-redundant sequences from db2
+writing clustering information
+program completed !
+
+Total CPU time 0.12
