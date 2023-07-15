@@ -880,6 +880,12 @@ if (explore) {
                                       chimeric_orf[c("Sequence", "X")], by = c("Representative" = "X")) 
       write.csv(counts_mor, file.path(output.dir, "files/counts_mor.csv"), row.names = F, quote = F)
       
+      output_paths <- rbind(output_paths,
+                            c("counts_mor_df", 
+                              file.path(output.dir, 
+                                        "files/counts_mor.csv")))
+      
+      
       cat("\n\nBetween sample comparison plots \n")
       cat("===================================================================\n\n")
       ### Radar plots

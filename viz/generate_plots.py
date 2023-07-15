@@ -1,12 +1,11 @@
 import pandas as pd
 import numpy as np
-#import seaborn as sns
 import os
 from Bio import SeqIO
 import bokeh as bk
 
 from header_html import write_header
-from bokeh_plots import bokeh_composite, bokeh_histogram, view_composition, view_cluster_size_distribution, view_serotype_abundance, view_positional_serotype_abundance
+from bokeh_plots import view_radar, bokeh_composite, bokeh_histogram, view_composition, view_cluster_size_distribution, view_serotype_abundance, view_positional_serotype_abundance
 
 import sys
 
@@ -133,6 +132,23 @@ def get_positional_serotype_abundance_matrix(csv_path):
 
     return positional_serotype_abundance_del
 
+def get_radar_df(csv_path, fc_threshold=1):
+    # quantile_prob , count_threshold = ? 
+
+    counts_mor_df = pd.read_csv(csv_path)
+    numeric_cols = counts_mor_df.columns[counts_mor_df.columns.str.contains('Count|FC')]
+    counts_mor_df[numeric_cols] = counts_mor_df[numeric_cols].astype('float32')
+
+    count_cols = counts_mor_df.columns[counts_mor_df.columns.str.contains('Count')][1:]
+    fc_cols = counts_mor_df.columns[counts_mor_df.columns.str.contains('FC')]
+
+    ### Filter enriched variants 
+    # !!! maybe add filtering by normalized counts
+    counts_mor_df = counts_mor_df[(counts_mor_df[fc_cols[1:3]] > fc_threshold).any(axis=1)].reset_index()
+
+    return counts_mor_df   
+
+
 def generate_main_report(config_df):
     os.makedirs(os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "supplement"), exist_ok=True)
 
@@ -142,7 +158,7 @@ def generate_main_report(config_df):
     chimeric_lib_clustering_info = get_clustering_df(output_paths_df.loc[output_paths_df[0] == "chimeric_lib_clustering_info"].iloc[0,1], output_paths_df.loc[output_paths_df[0] == "chimeric_lib_representatives_counts"].iloc[0,1])
     serotype_dist_data_frame_del = get_serotype_abundance_df(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description"].iloc[0,1])
     positional_serotype_abundance_del = get_positional_serotype_abundance_matrix(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description_top20"].iloc[0,1])
-    
+    counts_mor_df = get_radar_df(output_paths_df.loc[output_paths_df[0] == "counts_mor_df"].iloc[0,1], fc_threshold=1)
 
     enriched1_hist_list = []
     for n in enriched1_names:
@@ -163,7 +179,11 @@ def generate_main_report(config_df):
                                     view_positional_serotype_abundance("Positional serotype abundance in 20 most abundant representatives of chimeric library",
                                                                     positional_serotype_abundance_del, 
                                                                     serotype_names_del, 
-                                                                    serotype_colors_del), width = 1500)]]
+                                                                    serotype_colors_del), 
+                                                                    width = 1500)]]
+    figure_layout += [[bk.layouts.row(view_radar(counts_mor_df, type="Count"), 
+                                      view_radar(counts_mor_df, type="FC"), 
+                                      width = 1500)]]
     #figure_layout += [[[bokeh_histogram("Chimeric library ORF length distribution", chimeric_orf_df, 20, plot_width=600)]] + enriched1_hist_list]
 
     title = config_df.loc[config_df[0] == "title_of_the_run"].iloc[0, 1]

@@ -1,6 +1,7 @@
 import bokeh as bk
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import math
 from bokeh.io import output_file, save, export_svgs, export_png
 from bokeh.io import show
@@ -498,3 +499,103 @@ def view_cluster_size_distribution(clustering_data, topn = 20, lower_cut_size_ =
     layout = bk.layouts.row(tabs, representative_table, width=1500, height=550)
 
     return layout
+
+
+def view_radar(df, type, fig_width = 720, fig_height = 700):
+	sample_names = [i.replace("."+type,"") for i in df.columns[df.columns.str.contains(type)]]
+
+	### Assign colors to samples
+	num_samples = len(df.columns[df.columns.str.contains('FC')])
+	palette = sns.color_palette("Set1", num_samples+1).as_hex()
+	sample_color =  {} 
+
+	if type == "FC":
+		cols = df.columns[df.columns.str.contains('FC')]
+	elif type == "Count":
+		sample_color["Chimeric.Count"] = palette[0]
+		cols = df.columns[df.columns.str.contains('Count')][1:]
+
+	for i in range(len(cols)):
+		sample_color[cols[i]] = palette[i+1]
+	
+	alpha = np.pi/25.
+
+	inner_radius = 20
+	start_radius = 90
+	outer_radius = 300 - 10
+
+	if type == "FC":
+		title = "log2 Fold Changes of AAV variants (enriched library/chimeric library)"
+	elif type == "Count":
+		title = "log2 Normalized Counts of AAV variants"
+
+	# main frame of the fig
+	p = bk.plotting.figure(width = fig_width, height = fig_height, title = title,
+			x_axis_type = None, y_axis_type = None,
+			x_range = (-420, 420), y_range = (-420, 420),
+			min_border = 0, match_aspect = True) # outline_line_color = "black", 
+
+	# bace wedge
+	p.annular_wedge(0, 0, inner_radius, outer_radius, 
+					np.pi/2. + alpha, np.pi/2. - alpha, 
+					color = "#eaeaea", name = "Base wedge")
+
+	# circular grids and their labels
+	max_value = round(np.log2(df[df.columns[df.columns.str.contains(type)]].replace(0., np.nan)).max().max())
+	labels = np.linspace(0, max_value, 5)
+	radii = np.linspace(start_radius, outer_radius, 5)
+	p.circle(0, 0, radius = radii, fill_color = None, line_color = "black", line_width = 1)
+	p.text(0, radii + 15, [str(ax_label) for ax_label in labels],
+			text_font_size = "14px", text_align = "center", text_baseline = "middle")
+
+
+	angle = (2.0*np.pi - 2.*alpha)/(len(df) + 1)
+	angles = np.pi/2 - alpha - angle/2 - df.index.to_series()*angle
+
+	counter=0
+	# for col_name in df.columns[df.columns.str.contains(type)]:
+	for sample_name in sample_names:
+		df['log2_'+type+'_'+sample_name] = start_radius + np.log2(df[sample_name+"."+type].replace(0., np.nan))*np.floor((outer_radius-start_radius)/max_value)
+		df['real_log_'+type+'_'+sample_name] = np.log2(df[sample_name+"."+type].replace(0., np.nan))
+
+		df['start_angle_'+sample_name] = -angle + angles + (4.5-counter*0.5)*angle/6.
+		df['end_angle_'+sample_name] = -angle + angles + (6.+counter*0.5)*angle/6.
+		counter+=1
+
+	source = ColumnDataSource(df)
+
+	# small wedges
+	counter=0
+	for col_name in df.columns[df.columns.str.contains('log2_'+type)]:
+		p.annular_wedge(x = 0, y = 0, 
+						inner_radius = start_radius, outer_radius = col_name,
+						start_angle = 'start_angle_'+col_name.replace('log2_'+type+'_', ""), end_angle = 'end_angle_'+col_name.replace('log2_'+type+'_', ""), 
+						source = source, color = sample_color[col_name.replace('log2_'+type+'_', "")+"."+type], name = col_name, alpha = 1-counter*0.2) #"#0d3362"
+		counter+=1
+
+	# serotype labels
+	xr = 3.8*radii[0]*np.cos(np.array(-angle + angles + 10.5*angle/12.))
+	yr = 3.8*radii[0]*np.sin(np.array(-angle + angles + 10.5*angle/12.))
+
+	label_angles = np.array(-angle/2. + angles)
+	label_angles[label_angles < -np.pi/2] += np.pi
+	p.text(xr, yr, df.Representative, angle = label_angles,
+			text_font_size = "11px", text_align = "center", text_baseline = "middle")
+
+
+	# legend
+	x_coord = -380
+	y_coord = -400
+	for group, color in sample_color.items():
+		p.rect(x_coord, y_coord + 6.5, width=30, height=13, color=color)
+		p.text(x_coord + 30, y_coord + 6.5, text=[group.replace("."+type, "")], text_font_size="10px", text_align="left", text_baseline="middle")
+		# Update coordinates for the next group
+		y_coord += 30
+
+	# add a tooltip
+	tooltips = [("AAV variant", "@Representative")] + [("log2"+type+"-"+i, "@real_log_"+type+"_"+i) for i in sample_names]
+	p.add_tools(bk.models.HoverTool(tooltips = tooltips, mode="mouse", point_policy="follow_mouse", 
+									names = list(df.columns[df.columns.str.contains('log2_'+type)]))) 
+	
+	return p
+    
