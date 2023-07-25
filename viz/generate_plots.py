@@ -166,7 +166,7 @@ def generate_main_report(config_df):
         final_enriched1_orf_path_path = output_paths_df.loc[output_paths_df[0] == final_enriched1_orf_path_key].iloc[0,1]
         enriched1_orf_df = get_df_from_fasta(final_enriched1_orf_path_path) 
         enriched1_hist_list += [[bokeh_histogram(n + " enriched library ORF length distribution", enriched1_orf_df, 20, plot_width=600)]]
-
+        # enriched1_hist_list += [[bokeh_histogram(n + " enriched library ORF length distribution", enriched1_orf_df, 20, svg_dir=os.path.join(config_df.loc[config_df[0] == "output.dir"].iloc[0,1], "reports", "supplement"), plot_width=600)]]
     
     figure_layout = []
     figure_layout += [[view_cluster_size_distribution(chimeric_lib_clustering_info, lower_cut_size_ = 100, lower_cut_abundance_ = 100)]]

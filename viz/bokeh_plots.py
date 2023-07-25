@@ -1,3 +1,4 @@
+import os
 import bokeh as bk
 import numpy as np
 import pandas as pd
@@ -35,7 +36,13 @@ def bokeh_composite(title, figure_layout, filename):
     div_title = Div(text=get_div_title(title))
     save([div_logo, div_title, p], filename=filename)
 
-def bokeh_histogram(title, df, n_bins, plot_width=800):
+def export_images(p, title, svg_dir=None):
+      if svg_dir is not None:
+            svg_f = os.path.join(svg_dir, title + ".svg")
+            p.output_backend = "svg"
+            export_svgs(p, filename=svg_f)
+
+def bokeh_histogram(title, df, n_bins, svg_dir=None, plot_width=800):
     hist, edges = np.histogram(df['Length'], density=False, bins=n_bins)
     p = figure(title=title, tools='') #, width=plot_width
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
@@ -48,6 +55,8 @@ def bokeh_histogram(title, df, n_bins, plot_width=800):
     p.yaxis.axis_label = 'Frequency'
     #p.grid.grid_line_color="white"
 
+    # export_images(p, title, svg_dir)
+    
     return p
 
 def view_composition(title, serotype_dictionary, serotype_colors, serotype_names, include_text = False, plot_width = 1500, max_num_x = 3000):
