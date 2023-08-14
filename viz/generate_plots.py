@@ -144,7 +144,7 @@ def get_radar_df(csv_path, fc_threshold=1):
 
     ### Filter enriched variants 
     # !!! maybe add filtering by normalized counts
-    counts_mor_df = counts_mor_df[(counts_mor_df[fc_cols[1:3]] > fc_threshold).any(axis=1)].reset_index()
+    counts_mor_df = counts_mor_df[(counts_mor_df[fc_cols] > fc_threshold).any(axis=1)].reset_index()
 
     return counts_mor_df   
 
