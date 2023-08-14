@@ -127,7 +127,7 @@ def view_composition(title, serotype_dictionary, serotype_colors, serotype_names
     p.yaxis.major_tick_line_width = 0
     
     
-    tooltips = [("serotype", "@serotypes"),]
+    tooltips = [("serotype", "@serotypes"),("nucleotide position", "@x"),]
     p.add_tools(bk.models.HoverTool(tooltips=tooltips))
 
     # layout = bk.layouts.column(p, height=600, width=1500)
