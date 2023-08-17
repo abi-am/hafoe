@@ -1,0 +1,112 @@
+
+Running alignment on AAV.100015_1
+49 reads; of these:
+  49 (100.00%) were unpaired; of these:
+    1 (2.04%) aligned 0 times
+    19 (38.78%) aligned exactly 1 time
+    29 (59.18%) aligned >1 times
+97.96% overall alignment rate
+
+Running alignment on AAV.100025_22
+49 reads; of these:
+  49 (100.00%) were unpaired; of these:
+    0 (0.00%) aligned 0 times
+    28 (57.14%) aligned exactly 1 time
+    21 (42.86%) aligned >1 times
+100.00% overall alignment rate
+
+Running alignment on AAV.100037_50
+49 reads; of these:
+  49 (100.00%) were unpaired; of these:
+    3 (6.12%) aligned 0 times
+    19 (38.78%) aligned exactly 1 time
+    27 (55.10%) aligned >1 times
+93.88% overall alignment rate
+
+Running alignment on AAV.100042_29
+56 reads; of these:
+  56 (100.00%) were unpaired; of these:
+    1 (1.79%) aligned 0 times
+    33 (58.93%) aligned exactly 1 time
+    22 (39.29%) aligned >1 times
+98.21% overall alignment rate
+
+Running alignment on AAV.100085_4
+53 reads; of these:
+  53 (100.00%) were unpaired; of these:
+    3 (5.66%) aligned 0 times
+    34 (64.15%) aligned exactly 1 time
+    16 (30.19%) aligned >1 times
+94.34% overall alignment rate
+
+Running alignment on AAV.100108_57
+52 reads; of these:
+  52 (100.00%) were unpaired; of these:
+    2 (3.85%) aligned 0 times
+    25 (48.08%) aligned exactly 1 time
+    25 (48.08%) aligned >1 times
+96.15% overall alignment rate
+
+Running alignment on AAV.100121_51
+51 reads; of these:
+  51 (100.00%) were unpaired; of these:
+    1 (1.96%) aligned 0 times
+    18 (35.29%) aligned exactly 1 time
+    32 (62.75%) aligned >1 times
+98.04% overall alignment rate
+
+Running alignment on AAV.100129_31
+48 reads; of these:
+  48 (100.00%) were unpaired; of these:
+    0 (0.00%) aligned 0 times
+    15 (31.25%) aligned exactly 1 time
+    33 (68.75%) aligned >1 times
+100.00% overall alignment rate
+
+Running alignment on AAV.100145_83
+54 reads; of these:
+  54 (100.00%) were unpaired; of these:
+    1 (1.85%) aligned 0 times
+    18 (33.33%) aligned exactly 1 time
+    35 (64.81%) aligned >1 times
+98.15% overall alignment rate
+
+Running alignment on AAV.100172_36
+55 reads; of these:
+  55 (100.00%) were unpaired; of these:
+    3 (5.45%) aligned 0 times
+    36 (65.45%) aligned exactly 1 time
+    16 (29.09%) aligned >1 times
+94.55% overall alignment rate
+
+Running alignment on AAV.100176_9
+49 reads; of these:
+  49 (100.00%) were unpaired; of these:
+    1 (2.04%) aligned 0 times
+    24 (48.98%) aligned exactly 1 time
+    24 (48.98%) aligned >1 times
+97.96% overall alignment rate
+
+Running alignment on AAV.100231_16
+49 reads; of these:
+  49 (100.00%) were unpaired; of these:
+    1 (2.04%) aligned 0 times
+    19 (38.78%) aligned exactly 1 time
+    29 (59.18%) aligned >1 times
+97.96% overall alignment rate
+
+Running alignment on AAV.100271_10
+48 reads; of these:
+  48 (100.00%) were unpaired; of these:
+    2 (4.17%) aligned 0 times
+    25 (52.08%) aligned exactly 1 time
+    21 (43.75%) aligned >1 times
+95.83% overall alignment rate
+
+Running alignment on AAV.100277_65
+46 reads; of these:
+  46 (100.00%) were unpaired; of these:
+    0 (0.00%) aligned 0 times
+    27 (58.70%) aligned exactly 1 time
+    19 (41.30%) aligned >1 times
+100.00% overall alignment rate

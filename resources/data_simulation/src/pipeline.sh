@@ -27,6 +27,7 @@ echo "######## RUNNING run_hafoe_benchmarking.sh #######"
 bash src/run_hafoe_benchmarking.sh
 
 # 5. Make accuracy comparison boxplot on hafoe benchmarking results
+# Outputs: plots/variant_composition_accuracy_comparison.pdf
 echo "######## RUNNING accuracy_comparison_plot.R #######"
 Rscript src/accuracy_comparison_plot.R
 
