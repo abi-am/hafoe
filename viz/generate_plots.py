@@ -154,6 +154,8 @@ def generate_main_report(config_df):
 
     chimeric_orf_df = get_df_from_fasta(output_paths_df.loc[output_paths_df[0] == "final_chimeric_orf_fasta"].iloc[0,1]) 
     chimeric_lib_vd_dictionary = get_vd_dictionary(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description"].iloc[0,1])
+    conservation_score_df = pd.read_csv(output_paths_df.loc[output_paths_df[0] == "representatives_conservation_score_top20"].iloc[0,1])
+    conservation_score = np.array(conservation_score_df.x)
     chimeric_lib_top20_vd_dictionary = get_vd_dictionary(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description_top20"].iloc[0,1])
     chimeric_lib_clustering_info = get_clustering_df(output_paths_df.loc[output_paths_df[0] == "chimeric_lib_clustering_info"].iloc[0,1], output_paths_df.loc[output_paths_df[0] == "chimeric_lib_representatives_counts"].iloc[0,1])
     serotype_dist_data_frame_del = get_serotype_abundance_df(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description"].iloc[0,1])
@@ -170,7 +172,7 @@ def generate_main_report(config_df):
     
     figure_layout = []
     figure_layout += [[view_cluster_size_distribution(chimeric_lib_clustering_info, lower_cut_size_ = 100, lower_cut_abundance_ = 100)]]
-    figure_layout += [[view_composition("Compositions of the 20 most abundant representatives in chimeric library (with multiple sequence alignment)", chimeric_lib_top20_vd_dictionary, serotype_colors, serotype_names)]]
+    figure_layout += [[view_composition("Compositions of the 20 most abundant representatives in chimeric library (with multiple sequence alignment)", chimeric_lib_top20_vd_dictionary, serotype_colors, serotype_names, conservation_score = conservation_score)]]
     #figure_layout += [[view_composition("Compositions of chimeric library representatives", chimeric_lib_vd_dictionary, serotype_colors, serotype_names)]]
     figure_layout += [[bk.layouts.row(view_serotype_abundance("Serotype abundance in chimeric library",
                                             data=serotype_dist_data_frame_del, 

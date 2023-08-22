@@ -62,6 +62,34 @@ write.table(matrix_nt_top20,
             quote = F, 
             col.names = F)
 
+
+
+get_conservation_score <- function(aln_file_path, output_path){
+  aln <- seqinr::read.alignment(aln_file_path, format = "clustal", forceToLower = F)
+  
+  seq_vector <- strsplit(aln$seq, "")
+  
+  conservation_score <- c()
+  for (i in 1:nchar(aln$seq[1])){
+    character_frequency <- as.data.frame(table(unlist(lapply(seq_vector, function(inner_list) inner_list[[i]]))))
+    
+    max_frequency <- character_frequency[character_frequency[2] == max(character_frequency[2]),]
+    max_frequency$Var1 <- as.character(max_frequency$Var1)
+    if(nrow(max_frequency) == 1) {
+      max_frequency <- max_frequency[1,]
+    }else {
+      max_frequency <- max_frequency[1,]
+    }
+    
+    conservation_score <- c(conservation_score, max_frequency$Freq/aln$nb) #max frequency of a character in given position divided by number of sequences in msa
+  }
+  
+  write.csv(conservation_score, output_path, row.names = F)
+}
+
+get_conservation_score(aln_file_path = file.path(output.dir, "files/top20_rep_msa.clustal_num"), 
+                       output_path = file.path(output.dir, "files/top20_rep_msa_conservation_score.csv"))
+
 #TRUE
 predicted_labels <- read.csv(file.path(output.dir, "files/Chimeric_rep_predicted_labels.csv"))
 chim_simulated_initial_fa <- microseq::readFasta(file.path(simulated_dir, "Chimeric_lib_simulated_initial.fasta"))
@@ -130,4 +158,7 @@ write.table(matrix_nt_top20_sim,
                       "Chimeric_lib_simulated_labels_top20_msa.csv"), 
             quote = F, 
             col.names = F)
+
+get_conservation_score(aln_file_path = file.path(simulated_dir, "Chimeric_lib_simulated_initial_orf_top20.clustal_num"), 
+                       output_path =  file.path(simulated_dir, "Chimeric_lib_simulated_initial_orf_top20_conservation_score.csv"))
 

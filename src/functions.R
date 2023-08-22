@@ -1376,4 +1376,26 @@ plot.ma <- function(counts_normalized,
   print(p)
 }
 
+get_conservation_score <- function(aln_file_path, output_path){
+  aln <- seqinr::read.alignment(aln_file_path, format = "clustal", forceToLower = F)
+  
+  seq_vector <- strsplit(aln$seq, "")
+  
+  conservation_score <- c()
+  for (i in 1:nchar(aln$seq[1])){
+    character_frequency <- as.data.frame(table(unlist(lapply(seq_vector, function(inner_list) inner_list[[i]]))))
+    
+    max_frequency <- character_frequency[character_frequency[2] == max(character_frequency[2]),]
+    max_frequency$Var1 <- as.character(max_frequency$Var1)
+    if(nrow(max_frequency) == 1) {
+      max_frequency <- max_frequency[1,]
+    }else {
+      max_frequency <- max_frequency[1,]
+    }
+    
+    conservation_score <- c(conservation_score, max_frequency$Freq/aln$nb) #max frequency of a character in given position divided by number of sequences in msa
+  }
+  
+  write.csv(conservation_score, output_path, row.names = F)
+}
 

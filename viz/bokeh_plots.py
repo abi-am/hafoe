@@ -59,13 +59,14 @@ def bokeh_histogram(title, df, n_bins, svg_dir=None, plot_width=800):
     
     return p
 
-def view_composition(title, serotype_dictionary, serotype_colors, serotype_names, include_text = False, plot_width = 1500, max_num_x = 3000):
+def view_composition(title, serotype_dictionary, serotype_colors, serotype_names, conservation_score=None, include_text = False, plot_width = 1500, max_num_x = 3000):
     
+    # reverse the order fot top reps to be in the top
     ### seqs: Serotype list
     ### keys: Library name
-    seqs = np.array(list(serotype_dictionary.values()))
-    keys = np.array(list(serotype_dictionary.keys()))
-    
+    seqs = np.array(list(serotype_dictionary.values())[::-1])
+    keys = np.array(list(serotype_dictionary.keys())[::-1])
+
     N = len(seqs[0])
     S = len(seqs)    
     width = 1.
@@ -75,12 +76,12 @@ def view_composition(title, serotype_dictionary, serotype_colors, serotype_names
     serotypes = [serotype_names[i] for i in tmp]
     
     x = np.arange(1, N + 1)
-    y = np.arange(0, S, 1)    
+    y = np.arange(0, S, 1)  
     xx, yy = np.meshgrid(x, y)
     
     gx = xx.flatten()
-    gy = yy.flatten()
-    recty = gy + .1
+    gy = yy.flatten() # + 1.5
+    recty = gy + 1.5
     h = 1/S
     
     plot_height = len(seqs)*15 + 50
@@ -90,8 +91,7 @@ def view_composition(title, serotype_dictionary, serotype_colors, serotype_names
     else:
         viewlen = N
     view_range = (0, viewlen) 
-    
-    
+        
     
     source = bk.models.ColumnDataSource(dict(x=gx, y=gy, recty=recty, colors = colors, serotypes = serotypes))
     
@@ -126,13 +126,36 @@ def view_composition(title, serotype_dictionary, serotype_colors, serotype_names
     p.yaxis.minor_tick_line_width = 0
     p.yaxis.major_tick_line_width = 0
     
-    
+    # Add a new line in heatmap for conservation scores
+    if conservation_score is not None:
+        keys = np.append("conservation", keys)
+        
+        new_x = np.arange(1, N + 1)
+        new_y = np.arange(0, S, 1)
+        new_xx, new_yy = np.meshgrid(new_x, new_y)
+
+        new_gx = new_xx.flatten()
+        new_gy = new_yy.flatten()
+        new_recty = new_gy + 0.3 # Adjust the vertical position for the new heatmap
+
+        new_source = bk.models.ColumnDataSource(dict(x=new_gx, y=new_gy, recty=new_recty, data=conservation_score))
+
+        color_mapper = bk.models.LinearColorMapper(palette="YlOrRd9", low=0, high=1) #"Magma256"
+        new_rects = bk.models.glyphs.Rect(x="x", y="recty",
+                                        width=1., height=1,
+                                        fill_color={"field": "data", "transform": color_mapper},
+                                        line_color=None, fill_alpha=1.)
+
+        p.add_glyph(new_source, new_rects)
+
+        color_bar = bk.models.ColorBar(color_mapper=color_mapper, location=(0, 0))
+        p.add_layout(color_bar, 'right')
+
     tooltips = [("serotype", "@serotypes"),("nucleotide position", "@x"),]
     p.add_tools(bk.models.HoverTool(tooltips=tooltips))
 
     # layout = bk.layouts.column(p, height=600, width=1500)
     return p
-
 
 def view_serotype_abundance(title, data, serotype_names, serotype_colors):
     cats = serotype_names

@@ -433,12 +433,18 @@ if (explore) {
               quote = F, 
               col.names = F)
   
+  
   output_paths <- rbind(output_paths,
                         c("representatives_variant_description_top20", 
                           file.path(output.dir, 
                                     "files/variant_description/chimeric_lib_representatives/chimeric_lib_representatives_variant_description_top20_msa.csv")))
   
+  get_conservation_score(aln_file_path = file.path(output.dir, "files/top20_rep_msa.clustal_num"), 
+                         output_path = file.path(output.dir, "files/top20_rep_msa_conservation_score.csv"))
   
+  output_paths <- rbind(output_paths,
+                        c("representatives_conservation_score_top20", 
+                          file.path(output.dir, "files/top20_rep_msa_conservation_score.csv")))
   
   cat("\n\nPlot variant description of top20 representatives\nwith multiple sequence alignment gaps\n")
   cat("===================================================================\n\n")
