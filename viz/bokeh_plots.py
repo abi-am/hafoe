@@ -66,7 +66,9 @@ def view_composition(title, serotype_dictionary, serotype_colors, serotype_names
     ### keys: Library name
     seqs = np.array(list(serotype_dictionary.values())[::-1])
     keys = np.array(list(serotype_dictionary.keys())[::-1])
-
+    if conservation_score is not None:
+        keys = np.append("conservation", keys)
+    
     N = len(seqs[0])
     S = len(seqs)    
     width = 1.
@@ -80,8 +82,12 @@ def view_composition(title, serotype_dictionary, serotype_colors, serotype_names
     xx, yy = np.meshgrid(x, y)
     
     gx = xx.flatten()
-    gy = yy.flatten() # + 1.5
-    recty = gy + 1.5
+    gy = yy.flatten()
+    if conservation_score is not None:
+        y_shift = 1.5
+    else:
+        y_shift = 0.1
+    recty = gy + y_shift
     h = 1/S
     
     plot_height = len(seqs)*15 + 50
@@ -127,9 +133,7 @@ def view_composition(title, serotype_dictionary, serotype_colors, serotype_names
     p.yaxis.major_tick_line_width = 0
     
     # Add a new line in heatmap for conservation scores
-    if conservation_score is not None:
-        keys = np.append("conservation", keys)
-        
+    if conservation_score is not None:        
         new_x = np.arange(1, N + 1)
         new_y = np.arange(0, S, 1)
         new_xx, new_yy = np.meshgrid(new_x, new_y)
