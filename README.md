@@ -17,7 +17,7 @@ The common _hafoe_ usage is:
     -parentlib <path_to_parental_sequences_fasta_file> \
     -chimericlib <path_to_chimeric_sequences_csv/fastq_file> \
     -enrichedlib1 <path_to_dir_with_enriched_sequences_fastq_file(s)> \
-    -o <output_directory> example/hafoe_out \
+    -o <output_directory> \
     -title_of_the_run <title> 
 ```
 
