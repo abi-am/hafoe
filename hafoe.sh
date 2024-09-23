@@ -1,7 +1,4 @@
 #!/bin/bash
-#SBATCH --mem 10gb
-#SBATCH --output=slurm-%j.log
-
 
 usage="\nProgram:\thafoe
 \nVersion:\t1.0.0
