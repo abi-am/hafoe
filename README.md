@@ -52,25 +52,33 @@ A successful test run should generate the example/hafoe_out/ output directory wi
 _hafoe_'s main outputs are files/, reports/ directories in output directory.
 
 ### System requirements
-In your system you have to have: 
+The following software and packages should be pre-installed in your system: 
 
-R (version 4.1 or higher) with the following packages:
-dplyr: version 1.0.9
-ORFik: version 1.12.13
-plotly: version 4.10.0
-ggplot2: version 3.3.6
-gplots: version 3.1.3
-microseq: version 2.1.4
-Biostrings: version 2.60.2
-stringr: version 1.4.0
-cowplot: version 1.1.1
-seqinr: version 4.2.8 
- 
+R (v4.1.3) with the following packages:
+dplyr (v1.0.9),
+ORFik (v1.12.13),
+plotly (v4.10.0),
+ggplot2 (v3.3.6),
+gplots (v3.1.3),
+microseq (v2.1.4),
+Biostrings (v2.60.2),
+string (v1.4.0),
+cowplot (v1.1.1),
+seqinr (v4.2.8),
+
+Python (v3.9.5) with the following packages: 
+numpy (v1.24.3),
+pandas (v1.3.4),
+Bio (v1.5.3),
+bokeh (v2.4.3),
+seaborn (v0.12.2),
+selenium (v4.10.0),
+
 Bowtie 2 (v2.4.2), 
 
 CD-HIT (v4.8.1), 
 
 Clustal Omega (v1.2.4), 
 
-samtools version >=1.9 
+SAMtools (v1.9).
  
