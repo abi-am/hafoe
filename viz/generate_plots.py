@@ -160,7 +160,8 @@ def generate_main_report(config_df):
     chimeric_lib_clustering_info = get_clustering_df(output_paths_df.loc[output_paths_df[0] == "chimeric_lib_clustering_info"].iloc[0,1], output_paths_df.loc[output_paths_df[0] == "chimeric_lib_representatives_counts"].iloc[0,1])
     serotype_dist_data_frame_del = get_serotype_abundance_df(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description"].iloc[0,1])
     positional_serotype_abundance_del = get_positional_serotype_abundance_matrix(output_paths_df.loc[output_paths_df[0] == "representatives_variant_description_top20"].iloc[0,1])
-    counts_mor_df = get_radar_df(output_paths_df.loc[output_paths_df[0] == "counts_mor_df"].iloc[0,1], fc_threshold=2)
+    if "counts_mor_df" in output_paths_df[0].values:
+        counts_mor_df = get_radar_df(output_paths_df.loc[output_paths_df[0] == "counts_mor_df"].iloc[0,1], fc_threshold=2)
 
     enriched1_hist_list = []
     for n in enriched1_names:
@@ -183,9 +184,10 @@ def generate_main_report(config_df):
                                                                     serotype_names_del, 
                                                                     serotype_colors_del), 
                                                                     width = 1500)]]
-    figure_layout += [[bk.layouts.row(view_radar(counts_mor_df, type="Count"), 
-                                      view_radar(counts_mor_df, type="FC"), 
-                                      width = 1500)]]
+    if "counts_mor_df" in output_paths_df[0].values:
+        figure_layout += [[bk.layouts.row(view_radar(counts_mor_df, type="Count"), 
+                                        view_radar(counts_mor_df, type="FC"), 
+                                        width = 1500)]]
     #figure_layout += [[[bokeh_histogram("Chimeric library ORF length distribution", chimeric_orf_df, 20, plot_width=600)]] + enriched1_hist_list]
 
     title = config_df.loc[config_df[0] == "title_of_the_run"].iloc[0, 1]
