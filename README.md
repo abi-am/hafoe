@@ -64,7 +64,7 @@ To test how _hafoe_ works navigate to hafoe/ directory and run `chmod +x example
 A successful test run should generate the example/hafoe_out/ output directory with output files and reports.
 
 ### Output
-_hafoe_'s main outputs are files/, reports/ directories in output directory.
+_hafoe_'s main outputs are interactive HTML reports with multiple plots describing the diversity of the chimeric library, the prevalence of parental serotypes, the serotype composition of representative variants, and variants enriched in target tissues. HTML reports are located in <output_directory>/reports/main and <output_directory>/reports/supplementary directories.
 
 ### System requirements
 The following software and packages should be pre-installed in your system: 
@@ -89,11 +89,5 @@ bokeh (v2.4.3),
 seaborn (v0.12.2),
 selenium (v4.10.0),
 
-Bowtie 2 (v2.4.2), 
-
-CD-HIT (v4.8.1), 
-
-Clustal Omega (v1.2.4), 
-
-SAMtools (v1.9).
+Bowtie 2 (v2.4.2), CD-HIT (v4.8.1), Clustal Omega (v1.2.4), and SAMtools (v1.9).
  
