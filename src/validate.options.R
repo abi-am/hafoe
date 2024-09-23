@@ -28,8 +28,6 @@ config.table = matrix(argvalues, length(argvalues), 1)
 rownames(config.table) = argnames
 
 
-# config.table = as.matrix(read.table(file=config.file, header=F, sep="\t", comment.char =c("#","*"), blank.lines.skip=T, as.is=TRUE, row.names=1))
-
 #######################################################################
 ##########	Validate the options	###############
 #######################################################################
@@ -195,9 +193,7 @@ enriched.path = tryCatch({
 })
 names(enriched.path) <- NULL
 
-# if (enriched == "none"){
-#   cat("no enrichment file provided.")
-# } else {
+
 if (enriched.path != "none"){
   enriched.path = unlist(strsplit(enriched.path, split='[ ,]' , fixed=F))
   enriched.path = enriched.path[!duplicated(enriched.path)]
