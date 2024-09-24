@@ -5,7 +5,13 @@ _hafoe_ is a command-line-based tool for the automated exploratory analysis of A
 _hafoe_ works with Unix operating system (tested for Ubuntu Linux).
 
 ### Installation
-Download and uncompress the _hafoe_ package in a local directory. Then make hafoe.sh file executable by running `chmod +x hafoe.sh`.
+Clone the project from github and make hafoe.sh file executable:
+
+```
+git clone https://github.com/abi-am/hafoe.git
+cd hafoe
+chmod +x hafoe.sh
+```
 
 ### Usage
 The common _hafoe_ usage is:
