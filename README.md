@@ -1,6 +1,9 @@
 # _hafoe_ 
 _hafoe_ is a command-line-based tool for the automated exploratory analysis of AAV chimeric libraries and identification of enriched variants in desired tissues using long-read sequencing datasets.
 
+### Citation
+Jalatyan, T., Aznauryan, E., Hasan, R. et al. hafoe: an interactive tool for the analysis of chimeric AAV libraries after random mutagenesis. Gene Ther (2025). [https://doi.org/10.1038/s41434-025-00548-3](https://doi.org/10.1038/s41434-025-00548-3)  
+
 ### Operating Systems
 _hafoe_ works with Unix operating system (tested for Ubuntu Linux).
 
